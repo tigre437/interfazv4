@@ -1414,7 +1414,7 @@
              </size>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_3">
              <attribute name="title">
@@ -1486,19 +1486,6 @@
                    </property>
                    <property name="text">
                     <string>Config. Video</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="buttonConfiguracionExper">
-                   <property name="maximumSize">
-                    <size>
-                     <width>120</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Config. Experimento</string>
                    </property>
                   </widget>
                  </item>
@@ -1753,7 +1740,7 @@
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
-                  <height>80</height>
+                  <height>69</height>
                  </size>
                 </property>
                 <property name="frameShape">
@@ -1763,6 +1750,12 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_23">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
                   <widget class="QLineEdit" name="txtIpTermos"/>
                  </item>
@@ -1797,6 +1790,21 @@
                     <enum>QFrame::Raised</enum>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_8">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
                     <item>
                      <widget class="QFrame" name="frame_14">
                       <property name="frameShape">
@@ -1809,7 +1817,7 @@
                        <item>
                         <widget class="QLabel" name="label_9">
                          <property name="toolTip">
-                          <string notr="true" comment="PRUEBAA" extracomment="PRUEBAA"/>
+                          <string comment="PRUEBAA" extracomment="PRUEBAA"/>
                          </property>
                          <property name="text">
                           <string>Temp. Obj. :</string>
@@ -1817,7 +1825,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSlider" name="hSliderTempMin">
+                        <widget class="QSlider" name="hSliderTempSet">
                          <property name="maximumSize">
                           <size>
                            <width>130</width>
@@ -1865,7 +1873,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSlider" name="hSliderTempMax">
+                        <widget class="QSlider" name="hSliderTempInic">
                          <property name="maximumSize">
                           <size>
                            <width>130</width>
@@ -1913,7 +1921,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSlider" name="hSliderTempSet">
+                        <widget class="QSlider" name="hSliderRampa">
                          <property name="maximumSize">
                           <size>
                            <width>130</width>
@@ -1930,6 +1938,54 @@
                        </item>
                        <item>
                         <widget class="QDoubleSpinBox" name="dSpinBoxTempSet">
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <double>-99.000000000000000</double>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="frame_18">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_27">
+                       <item>
+                        <widget class="QLabel" name="lblTempImg">
+                         <property name="text">
+                          <string>Temp. Img.  :</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QSlider" name="hSliderTempSet_2">
+                         <property name="maximumSize">
+                          <size>
+                           <width>130</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <number>-99</number>
+                         </property>
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet_2">
                          <property name="maximumSize">
                           <size>
                            <width>50</width>
