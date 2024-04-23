@@ -14,7 +14,6 @@ from PyQt6.QtGui import QPixmap, QTransform
 from interfazv1 import Ui_MainWindow  # Importa la interfaz de la ventana principal
 from pygrabber.dshow_graph import FilterGraph
 import datetime
-from configFotos import Ui_Dialog
 import threading  
 from lauda import Lauda
 from VideoThread import VideoThread
@@ -24,9 +23,9 @@ import random
 ruta_experimento_activo = None
 parar = False
 lista_imagenes_analisis = []
-temp_bloc = []
-temp_liquid = []
-temp_set = []
+temp_bloc = [0,1,2]
+temp_liquid = [0,1,2]
+temp_set = [0,1,2]
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def __init__(self, *args, obj=None, **kwargs):
@@ -116,13 +115,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonRecargar.clicked.connect(lambda index: self.filechooser(self.txtArchivos.text()))
 
-        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)
-
-
-        # Timer de la grafica
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.actualizar_grafica)
-        
+        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)       
 
 
         ######################  ANALISIS  ##########################
@@ -538,44 +531,50 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
             return
 
-        temp_max = data.get('tempMax', 0.00)
-        temp_min = data.get('tempMin', 0.00)
+        temp_rampa = data.get('Rampa', 0.00)
+        temp_ini = data.get('tempIni', 0.00)
         temp_set = data.get('tempSet', 0.00)
+        temp_img = data.get('tempImg', 0.00)
 
         return {
-            'tempMax': temp_max,
-            'tempMin': temp_min,
-            'tempSet': temp_set
+            'Rampa': temp_rampa,
+            'tempIni': temp_ini,
+            'tempSet': temp_set,
+            'tempImg': temp_img
         }
 
     def rellenar_datos_temp(self, datos):
         """Asigna los valores correspondientes a cada campo de texto de temperatura."""
-        self.dSpinBoxTempMax.setValue(datos['tempMax'])
-        self.dSpinBoxTempMin.setValue(datos['tempMin'])
+        self.dSpinBoxTempRampa.setValue(datos['Rampa'])
+        self.dSpinBoxTempIni.setValue(datos['tempIni'])
         self.dSpinBoxTempSet.setValue(datos['tempSet'])
+        self.dSpinBoxTempImg.setValue(datos['tempImg'])
 
     def crear_json_temp(self, ruta_carpeta_sns):
         """Crea el archivo temp.json."""
         ruta_temp_json = os.path.join(ruta_carpeta_sns, 'temp.json')
         with open(ruta_temp_json, 'w') as file:
             json.dump({
-                "tempMax": 0.00,
-                "tempMin": 0.00,
-                "tempSet": 0.00
+                "Rampa": 0.00,
+                "tempIni": 0.00,
+                "tempSet": 0.00,
+                "tempImg": 0.00
             }, file) 
 
     def guardar_datos_temp(self):
         """Guarda los datos de temperatura en un archivo JSON."""
         # Obtener los datos de los campos de temperatura
-        temp_max = self.dSpinBoxTempMax.value()
-        temp_min = self.dSpinBoxTempMin.value()
+        temp_rampa = self.dSpinBoxTempRampa.value()
+        temp_ini = self.dSpinBoxTempIni.value()
         temp_set = self.dSpinBoxTempSet.value()
+        temp_img = self.dSpinBoxTempImg.value()
 
         # Crear un diccionario con los datos de temperatura
         datos_temp = {
-            'tempMax': temp_max,
-            'tempMin': temp_min,
-            'tempSet': temp_set
+            'Rampa': temp_rampa,
+            'tempIni': temp_ini,
+            'tempSet': temp_set,
+            'tempImg': temp_img
         }
 
         # Obtener la ruta del archivo JSON
@@ -586,8 +585,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             json.dump(datos_temp, file)
 
         QMessageBox.information(self, "Guardado", "Los datos de temperatura se han actualizado correctamente.", QMessageBox.StandardButton.Ok)
-
-
 
 
     def obtener_ruta_json(self, archivo):
@@ -605,14 +602,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global temp_bloc, temp_liquid, temp_set  # Declarando las variables como globales
         
         # Genera valores aleatorios para las temperaturas
-        nuevo_valor_bloque = random.randint(20, 30)
-        nuevo_valor_liquido = random.randint(22, 40)
-        nuevo_valor_consigna = random.randint(20, 30)  # Puedes cambiar el rango si lo necesitas
-        
-        # Añade el nuevo valor a cada lista de temperatura
-        temp_bloc.append(nuevo_valor_bloque)
-        temp_liquid.append(nuevo_valor_liquido)
-        temp_set.append(nuevo_valor_consigna)
+        nuevo_valor_bloque = self.lauda.get_t_ext()
+        nuevo_valor_liquido = self.lauda.get_t_int()
+        nuevo_valor_consigna = self.lauda.get_t_set()
+
+        # Verificar si los valores son números válidos antes de agregarlos a las listas
+        if isinstance(nuevo_valor_bloque, (int, float)) and \
+        isinstance(nuevo_valor_liquido, (int, float)) and \
+        isinstance(nuevo_valor_consigna, (int, float)):
+            
+            # Añade el nuevo valor a cada lista de temperatura
+            temp_bloc.append(nuevo_valor_bloque)
+            temp_liquid.append(nuevo_valor_liquido)
+            temp_set.append(nuevo_valor_consigna)
+        else:
+            # Si algún valor no es un número válido, no lo agregues a las listas
+            print("Alguno de los valores de temperatura no es válido:", nuevo_valor_bloque, nuevo_valor_liquido, nuevo_valor_consigna)
+
         
         # Guardar los límites actuales de los ejes
         xlim = self.plot_widget.getViewBox().state['viewRange'][0]
@@ -630,6 +636,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
         # Crear un widget de gráfico
         self.plot_widget = pg.PlotWidget()
+
+        print(temperatura_bloque)
+        print(temperatura_liquido)
+        print(temperatura_consigna)
 
         # Agregar las líneas de la gráfica
         self.plot_widget.plot(temperatura_bloque, pen=pg.mkPen(color='r'), name='Temperatura Bloque')  # Línea roja para la temperatura del bloque
@@ -714,20 +724,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         return ruta_experimento
 
     def iniciar_experimento(self):
-        # Leer datos del filtro, detección y cámara desde archivos JSON
+        # Configurar temperatura inicial en el equipo Lauda
+        self.lauda.set_t_set(self.dSpinBoxTempIni.value())
+        self.lauda.start()
+
+        # Leer datos del filtro, detección y temperatura desde archivos JSON
         datos_filtro = self.leer_json_filtro(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "filter.json"))
         datos_detection = self.leer_json_detection(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "detection.json"))
         datos_temp = self.leer_json_temp(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "temp.json"))
-        print(datos_temp['tempSet'])
-
-        # Configurar la temperatura objetivo y iniciar el dispositivo Lauda
-        self.lauda.set_t_set(int(datos_temp['tempSet'])
-)
-        self.lauda.start()
 
         # Obtener los datos del experimento dependiendo de la placa seleccionada
         placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
-        if (placa == "Placa A"):
+        if placa == "Placa A":
             datos_exper = {
                 "v_drop": float(self.txtVDropPlacaA.text()),
                 "v_wash": float(self.txtVWashPlacaA.text()),
@@ -747,21 +755,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "cooling_rate": float(self.txtVelEnfriamientoPlacaB.text()),
                 "observations_exp": self.txtObservPlacaB.toPlainText()
             }
-        
+
         # Obtener la ruta de la carpeta del experimento
         ruta_carpeta_experimento = self.obtener_ruta_experimento()
 
-        # Verificar si la carpeta del experimento ya existe, si no, crearla
+        # Verificar y crear la carpeta del experimento si no existe
         if not os.path.exists(ruta_carpeta_experimento):
             os.makedirs(ruta_carpeta_experimento)
 
+        # Establecer la ruta de la carpeta del experimento como la ruta activa
         global ruta_experimento_activo
         ruta_experimento_activo = ruta_carpeta_experimento
 
         # Obtener la ruta del archivo JSON del experimento
         ruta_json = self.obtener_ruta_experimento_json()
 
-        # Verificar si el archivo JSON ya existe y eliminarlo si es así
+        # Verificar y eliminar el archivo JSON si ya existe
         if os.path.exists(ruta_json):
             respuesta = self.mostrar_dialogo_confirmacion("Sobreescribir experimento", "¿Estás seguro de que quieres sobreescribir los datos del experimento?")
             if not respuesta:
@@ -775,7 +784,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         datos_experimento.update(datos_detection)
         datos_experimento.update(datos_exper)
 
-       
         # Guardar los datos del experimento en el archivo JSON
         with open(ruta_json, 'w') as file:
             json.dump(datos_experimento, file)
@@ -787,10 +795,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global parar
         parar = False
 
-        # Guardar la configuración actual
-        self.save()
-        self.rampa_temperatura(datos_temp['tempMin'])
-        self.guardar_temperaturas()
+        # Guardar la configuración actual de temperatura
+        self.save(datos_temp)
+        print(self.dSpinBoxTempSet.text())
+        self.rampa_temperatura(self.dSpinBoxTempSet.text())  # Esto parece un comentario, ¿debería ejecutarse? Revisa esta línea
+        self.guardar_temperaturas()  # No se especifica cuántos argumentos necesita esta función
+        self.timer.start()
+
 
 
     def pararExperimento(self):
@@ -799,9 +810,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         parar = True
 
     def rampa_temperatura(self, objetivo):
+        temp = self.dSpinBoxTempIni.value()
         while not parar:
-            if float(self.lauda.get_t_int()) > objetivo:
-                self.lauda.set_t_set(self.lauda.get_t_int() - 1)
+            self.actualizar_grafica()
+            time.sleep(5)
+            if(float(self.lauda.get_t_ext()) >= 0.0 and float(self.lauda.get_t_ext()) <= 0.2):
+                time.sleep(60)
+                while not parar:
+                    #self.actualizar_grafica()
+                    if(self.lauda.get_t_set() > objetivo):
+                        self.lauda.set_t_set(temp - 1)
+                        temp = temp - 1
+                    time.sleep(60)
+
 
     def guardar_temperaturas(self):
         while not parar:
@@ -868,7 +889,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def settings(self):
         self.video_thread.settings()
 
-    def save(self):
+    def save(self, datos_temp):
         global ruta_experimento_activo
         if(ruta_experimento_activo is None):
             ruta_experimento_activo = self.obtener_ruta_experimento()
@@ -878,14 +899,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not os.path.exists(ruta_imagenes):
             os.makedirs(ruta_imagenes)
 
-        h1 = threading.Thread(name="guardado_imagenes", target=self.comprobar_fotos, args=(ruta_experimento_activo, datos_camara))
+        h1 = threading.Thread(name="guardado_imagenes", target=self.comprobar_fotos, args=(ruta_experimento_activo, datos_temp))
         h1.start()
 
 
-    def comprobar_fotos(self, ruta_imagenes, datos_camara):
+    def comprobar_fotos(self, ruta_imagenes, datos_temp):
         global parar
         while not parar:
-            if (self.lauda.get_t_int() == datos_camara['temp_set']):
+            if (self.lauda.get_t_ext() == datos_temp['tempSet']):
                 self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
                 time.sleep(int())
             else:

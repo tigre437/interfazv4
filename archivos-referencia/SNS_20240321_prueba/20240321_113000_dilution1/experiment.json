@@ -1,0 +1,23 @@
+{
+    "label": "SNS_20240321_prueba",
+    "storage_temperature": -20,
+    "sampler_id": "GRASS1",
+    "filter_position": 1,
+    "air_volume": 21955.2,
+    "start_time": "2024-03-21 07:00",
+    "end_time": "2024-03-22 07:00",
+    "observations": null,
+    "v_drop": 2e-04,
+    "v_wash": 0.02,
+    "dil_factor": 1.0,
+    "filter_fraction": 1,
+    "sampling_rate": 5,
+    "cooling_rate": 1,
+    "circle_detection": {
+        "threshold": 180,
+        "min_radius": 14,
+        "max_radius": 20,
+        "polygon": 5
+    },
+    "observations_exp": null
+}

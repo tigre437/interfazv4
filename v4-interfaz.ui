@@ -1841,7 +1841,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="dSpinBoxTempMin">
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet">
                          <property name="maximumSize">
                           <size>
                            <width>50</width>
@@ -1889,7 +1889,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="dSpinBoxTempMax">
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempIni">
                          <property name="maximumSize">
                           <size>
                            <width>50</width>
@@ -1937,7 +1937,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet">
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempRampa">
                          <property name="maximumSize">
                           <size>
                            <width>50</width>
@@ -1977,7 +1977,7 @@
                           </size>
                          </property>
                          <property name="minimum">
-                          <number>-99</number>
+                          <number>0</number>
                          </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
@@ -1985,7 +1985,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet_2">
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempImg">
                          <property name="maximumSize">
                           <size>
                            <width>50</width>
@@ -2263,7 +2263,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>true</bool>

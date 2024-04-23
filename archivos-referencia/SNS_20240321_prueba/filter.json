@@ -1,0 +1,10 @@
+{
+    "label": "SNS_20240321_prueba",
+    "storage_temperature": -20,
+    "sampler_id": "GRASS1",
+    "filter_position": 1,
+    "air_volume": 21955.2,
+    "start_time": "2024-03-21 07:00",
+    "end_time": "2024-03-22 07:00",
+    "observations": null
+}

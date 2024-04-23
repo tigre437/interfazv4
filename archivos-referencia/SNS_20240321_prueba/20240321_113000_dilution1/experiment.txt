@@ -1,0 +1,23 @@
+{
+    "label": "SNS_20240321_prueba", linea de texto
+    "storage_temperature": -20, linea de texto (numero)
+    "sampler_id": "GRASS1", linea de texto
+    "filter_position": 1, linea de texto
+    "air_volume": 21955.2, linea de texto (unidades L) (numero)
+    "start_time": "2024-03-21 07:00", linea de texto (fecha)
+    "end_time": "2024-03-22 07:00", linea de texto (fecha)
+    "observations": null, cuadro de texto
+    "v_drop": 2e-04, linea de texto (unidades L) (numero)
+    "v_wash": 0.02, linea de texto (unidades L) (numero)
+    "dil_factor": 1.0, linea de texto (numero)
+    "filter_fraction": 1, linea de texto (numero)
+    "sampling_rate": 5, linea de texto (unidades s) (numero)
+    "cooling_rate": 1, linea de texto (unidades K/min) (numero)
+    "circle_detection": { [todo esto se muestra en los settings de circulo]
+        "threshold": 180, 
+        "min_radius": 14,
+        "max_radius": 20,
+        "polygon": 5
+    },
+    "observations_exp": null cuadro de texto
+}
