@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QVBoxLayout, QMessageBox, QGraphicsProxyWidget, QListWidgetItem, QDialog, QWidget
 )
 from PyQt6.QtCore import pyqtSlot, Qt, pyqtSignal, QThread, QTimer
-from PyQt6.QtGui import QPixmap, QTransform
+from PyQt6.QtGui import QPixmap, QTransform, QPainter
 from interfazv1 import Ui_MainWindow  # Importa la interfaz de la ventana principal
 from pygrabber.dshow_graph import FilterGraph
 import datetime
@@ -18,6 +18,8 @@ import threading
 from lauda import Lauda
 from VideoThread import VideoThread
 import random
+from grafica import ActualizarGraficaThread
+
 
 
 ruta_experimento_activo = None
@@ -34,11 +36,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global ruta_experimento_activo
         ruta_experimento_activo = None
 
-        self.lauda = Lauda()
+        global lauda
+        lauda = Lauda()
         self.video_thread = VideoThread(MainWindow)
 
         #self.video_thread.start()
-        self.lauda.start()
+        lauda.start()
 
         # Graficas
         scene = QtWidgets.QGraphicsScene()
@@ -121,8 +124,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         ######################  ANALISIS  ##########################
 
         self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))
-
-        self.setToolTips()
 
     def detener_timer(self):
         self.timer.stop()
@@ -340,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def conectarTermostato(self):
         url = self.txtIpTermos.text()
 
-        self.lauda.open(url)
+        lauda.open(url)
 
 
     ######################### JSON #################################
@@ -598,40 +599,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     ######################## GRAFICA ####################################
 
-    def actualizar_grafica(self):
-        global temp_bloc, temp_liquid, temp_set  # Declarando las variables como globales
-        
-        # Genera valores aleatorios para las temperaturas
-        nuevo_valor_bloque = self.lauda.get_t_ext()
-        nuevo_valor_liquido = self.lauda.get_t_int()
-        nuevo_valor_consigna = self.lauda.get_t_set()
-
-        # Verificar si los valores son números válidos antes de agregarlos a las listas
-        if isinstance(nuevo_valor_bloque, (int, float)) and \
-        isinstance(nuevo_valor_liquido, (int, float)) and \
-        isinstance(nuevo_valor_consigna, (int, float)):
-            
-            # Añade el nuevo valor a cada lista de temperatura
-            temp_bloc.append(nuevo_valor_bloque)
-            temp_liquid.append(nuevo_valor_liquido)
-            temp_set.append(nuevo_valor_consigna)
-        else:
-            # Si algún valor no es un número válido, no lo agregues a las listas
-            print("Alguno de los valores de temperatura no es válido:", nuevo_valor_bloque, nuevo_valor_liquido, nuevo_valor_consigna)
-
-        
-        # Guardar los límites actuales de los ejes
-        xlim = self.plot_widget.getViewBox().state['viewRange'][0]
-        ylim = self.plot_widget.getViewBox().state['viewRange'][1]
-        
-        # Llama a la función pintar_grafica con las listas actualizadas
-        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)
-        
-        # Restaurar los límites de los ejes
-        self.plot_widget.setXRange(*xlim, padding=0)
-        self.plot_widget.setYRange(*ylim, padding=0)
-
-    
+      
     def pintar_grafica(self, temperatura_bloque, temperatura_liquido, temperatura_consigna):
         """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
         # Crear un widget de gráfico
@@ -725,8 +693,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def iniciar_experimento(self):
         # Configurar temperatura inicial en el equipo Lauda
-        self.lauda.set_t_set(self.dSpinBoxTempIni.value())
-        self.lauda.start()
+        lauda.set_t_set(self.dSpinBoxTempIni.value())
+        lauda.start()
 
         # Leer datos del filtro, detección y temperatura desde archivos JSON
         datos_filtro = self.leer_json_filtro(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "filter.json"))
@@ -797,38 +765,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Guardar la configuración actual de temperatura
         self.save(datos_temp)
-        print(self.dSpinBoxTempSet.text())
-        self.rampa_temperatura(self.dSpinBoxTempSet.text())  # Esto parece un comentario, ¿debería ejecutarse? Revisa esta línea
-        self.guardar_temperaturas()  # No se especifica cuántos argumentos necesita esta función
-        self.timer.start()
-
+        self.timer_rampa = QTimer(self)
+        self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
+        self.timer_rampa.start(60000)
 
 
     def pararExperimento(self):
-        self.lauda.stop()
+        lauda.stop()
+        self.timer_rampa.stop()
+        self.timer_comprobacion_fotos.stop()
+        self.actualizar_grafica_thread.stop()
         global parar
         parar = True
 
     def rampa_temperatura(self, objetivo):
         temp = self.dSpinBoxTempIni.value()
-        while not parar:
-            self.actualizar_grafica()
-            time.sleep(5)
-            if(float(self.lauda.get_t_ext()) >= 0.0 and float(self.lauda.get_t_ext()) <= 0.2):
-                time.sleep(60)
-                while not parar:
-                    #self.actualizar_grafica()
-                    if(self.lauda.get_t_set() > objetivo):
-                        self.lauda.set_t_set(temp - 1)
-                        temp = temp - 1
-                    time.sleep(60)
+        if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
+            if(lauda.get_t_set() > objetivo):
+                lauda.set_t_set(temp - 1)
+                temp = temp - 1
 
 
     def guardar_temperaturas(self):
-        while not parar:
-            temp_bloc.append(self.lauda.get_t_ext())
-            temp_liquid.append(self.lauda.get_t_int())
-            temp_set.append(self.lauda.get_t_set())
+        temp_bloc.append(lauda.get_t_ext())
+        temp_liquid.append(lauda.get_t_int())
+        temp_set.append(lauda.get_t_set())
 
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
@@ -873,7 +834,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         cameras = []
         filter_graph = FilterGraph()
         devices = filter_graph.get_input_devices()
-
+ 
         for index in enumerate(devices):
             cameras.append(index)
 
@@ -899,18 +860,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not os.path.exists(ruta_imagenes):
             os.makedirs(ruta_imagenes)
 
-        h1 = threading.Thread(name="guardado_imagenes", target=self.comprobar_fotos, args=(ruta_experimento_activo, datos_temp))
-        h1.start()
+        self.timer_comprobacion_fotos = QTimer(self)
+        self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(ruta_imagenes, datos_temp))
+
+        # Iniciar QTimer para que se ejecute cada minuto (60,000 milisegundos)
+        self.timer_comprobacion_fotos.start(60000)
 
 
     def comprobar_fotos(self, ruta_imagenes, datos_temp):
-        global parar
-        while not parar:
-            if (self.lauda.get_t_ext() == datos_temp['tempSet']):
-                self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
-                time.sleep(int())
-            else:
-                time.sleep(int())
+        if (lauda.get_t_ext() == datos_temp['tempSet']):
+            self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
 
 
     @pyqtSlot(np.ndarray)
@@ -1153,16 +1112,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MostrarPlacaA.setPixmap(lista_imagenes_analisis[indice_imagen].get_pixmap())
         self.lblImagenA.setText(lista_imagenes_analisis[indice_imagen].get_nombre())
         self.lblTempA.setText(str(lista_imagenes_analisis[indice_imagen].get_temp()))
-
-    def setToolTips(self):
-        for widget in self.findChildren(QWidget):
-            widget.enterEvent = lambda event, w=widget: self.showToolTipWithDelay(w)
-
-    def showToolTipWithDelay(self, widget):
-        QTimer.singleShot(1000, lambda: widget.setToolTip(widget.toolTip()))
-
-
-
 
 ####################### OBJETO FOTO ###########################
 
