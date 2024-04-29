@@ -693,6 +693,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def iniciar_experimento(self):
         # Configurar temperatura inicial en el equipo Lauda
+        global temp
+        temp = self.dSpinBoxTempIni.value()
         lauda.set_t_set(self.dSpinBoxTempIni.value())
         lauda.start()
 
@@ -765,9 +767,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Guardar la configuración actual de temperatura
         self.save(datos_temp)
-        self.timer_rampa = QTimer(self)
-        self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
-        self.timer_rampa.start(60000)
+        self.timer_temp_inicial = QTimer(self)
+        self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
+        self.timer_temp_inicial.start(60000)
 
 
     def pararExperimento(self):
@@ -779,11 +781,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         parar = True
 
     def rampa_temperatura(self, objetivo):
-        temp = self.dSpinBoxTempIni.value()
+        global temp
+        print(temp)
+        if(lauda.get_t_set() > objetivo):
+            lauda.set_t_set(temp - 1)
+            temp = temp - 1
+
+    def llevar_temperatura_inicial(self):
         if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
-            if(lauda.get_t_set() > objetivo):
-                lauda.set_t_set(temp - 1)
-                temp = temp - 1
+            self.timer_rampa = QTimer(self)
+            self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
+            self.timer_rampa.start(60000)
+            self.timer_temp_inicial.stop()
 
 
     def guardar_temperaturas(self):
@@ -868,8 +877,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def comprobar_fotos(self, ruta_imagenes, datos_temp):
-        if (lauda.get_t_ext() == datos_temp['tempSet']):
-            self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
+        if (lauda.get_t_ext() == datos_temp['tempImg']):
+            self.timer_tomar_fotos = QTimer(self)
+            self.timer_tomar_fotos.timeout.connect(self.tomar_fotos)
+            self.timer_tomar_fotos.start(5000)
+            self.timer_comprobacion_fotos.stop()
+
+
+    def tomar_fotos(self, ruta_imagenes):
+        self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
 
 
     @pyqtSlot(np.ndarray)
