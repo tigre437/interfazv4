@@ -873,18 +873,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(ruta_imagenes, datos_temp))
 
         # Iniciar QTimer para que se ejecute cada minuto (60,000 milisegundos)
+        print("Se inicia la comprobacion de fotos")
         self.timer_comprobacion_fotos.start(60000)
 
 
     def comprobar_fotos(self, ruta_imagenes, datos_temp):
+        print("comprobando temperatura imagenes")
         if (lauda.get_t_ext() == datos_temp['tempImg']):
+            print("temperatura de imagenes correcta")
             self.timer_tomar_fotos = QTimer(self)
             self.timer_tomar_fotos.timeout.connect(self.tomar_fotos)
             self.timer_tomar_fotos.start(5000)
+            print("iniciado temperizador de imagenes")
             self.timer_comprobacion_fotos.stop()
 
 
     def tomar_fotos(self, ruta_imagenes):
+        print("FOTO")
         self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
 
 
