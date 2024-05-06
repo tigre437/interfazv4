@@ -1969,7 +1969,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QSlider" name="hSliderTempSet_2">
+                        <widget class="QSlider" name="hSliderImg">
                          <property name="maximumSize">
                           <size>
                            <width>130</width>
@@ -1977,7 +1977,7 @@
                           </size>
                          </property>
                          <property name="minimum">
-                          <number>0</number>
+                          <number>-99</number>
                          </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>

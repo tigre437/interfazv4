@@ -106,7 +106,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dSpinBoxGradoPolig.valueChanged.connect(self.hSliderGradoPolig.setValue)
         self.dSpinBoxUmbral.valueChanged.connect(self.hSliderUmbral.setValue)
 
+
+        # Conectar Sliders con Spin box
+        self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)
+        self.hSliderTempInic.valueChanged.connect(self.dSpinBoxTempIni.setValue)
+        self.hSliderRampa.valueChanged.connect(self.dSpinBoxTempRampa.setValue)
+        self.hSliderImg.valueChanged.connect(self.dSpinBoxTempImg.setValue)
+
+        # Conectar Spin boxes con Sliders
         self.dSpinBoxTempSet.valueChanged.connect(self.hSliderTempSet.setValue)
+        self.dSpinBoxTempIni.valueChanged.connect(self.hSliderTempInic.setValue)
+        self.dSpinBoxTempRampa.valueChanged.connect(self.hSliderRampa.setValue)
+        self.dSpinBoxTempImg.valueChanged.connect(self.hSliderImg.setValue)
+
 
         self.buttonRecargar.clicked.connect(lambda: self.filechooser(True))
 
