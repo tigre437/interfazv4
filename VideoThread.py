@@ -37,6 +37,7 @@ class VideoThread(QThread):
         self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
 
     def save(self, ruta_experimento, area, doble):
+        print("hilo de foto")
         # Obtener la fecha y hora actual
         now = datetime.datetime.now()
 
@@ -45,11 +46,15 @@ class VideoThread(QThread):
 
         ret, cv_img = self.cap.read()
         if ret:
+            print("1")
             if not doble:
+                print("2")
                 height, width, _ = cv_img.shape
                 if area == 'Placa A':
+                    print("3")
                     cv_img = cv_img[:, :width // 2]  # Recortar la mitad izquierda de la imagen
                 elif area == 'Placa B':
+                    print("4")
                     cv_img = cv_img[:, width // 2:]  # Recortar la mitad derecha de la imagen
             # Guardar la imagen en la carpeta "imagenes"
             cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)
