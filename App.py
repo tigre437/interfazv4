@@ -25,9 +25,9 @@ from grafica import ActualizarGraficaThread
 ruta_experimento_activo = None
 parar = False
 lista_imagenes_analisis = []
-temp_bloc = [0,1,2]
-temp_liquid = [0,1,2]
-temp_set = [0,1,2]
+temp_bloc = [0]
+temp_liquid = [0]
+temp_set = [0]
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def __init__(self, *args, obj=None, **kwargs):
@@ -136,10 +136,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         ######################  ANALISIS  ##########################
 
         self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))
-
-    def detener_timer(self):
-        self.timer.stop()
-
 
     def desactivar_placaB(self):
         if self.checkBoxAmbasPlacas.isChecked():
@@ -269,19 +265,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def cancelar_cambios_filtro(self):
         """Cancela la edición del filtro seleccionado."""
-        datos_filtro = self.leer_json_filtro(self.txtArchivos.text() + "/" + self.comboBoxFiltro.currentText() + "/" + "filter.json")
+        datos_filtro = self.leer_json_filtro(self.obtener_ruta_json("filter.json"))
         if (datos_filtro != None):
             self.rellenar_datos_filtro(datos_filtro)
 
     def cancelar_cambios_detect(self):
         """Cancela la edición del filtro seleccionado."""
-        datos_detection = self.leer_json_detection(self.txtArchivos.text() + "/" + self.comboBoxFiltro.currentText() + "/" + "detection.json")
+        datos_detection = self.leer_json_detection(self.obtener_ruta_json("detection.json"))
         if (datos_detection != None):
             self.rellenar_datos_detection(datos_detection)
 
     def cancelar_cambios_temp(self):
         """Cancela la edición del filtro seleccionado."""
-        datos_temp = self.leer_json_temp(self.txtArchivos.text() + "/" + self.comboBoxFiltro.currentText() + "/" + "temp.json")
+        datos_temp = self.leer_json_temp(self.obtener_ruta_json("temp.json"))
+        print(datos_temp)
         if (datos_temp != None):
             self.rellenar_datos_temp(datos_temp)
 
@@ -352,8 +349,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def conectarTermostato(self):
         url = self.txtIpTermos.text()
-
-        lauda.open(url)
+        result = lauda.open(url)
+        if result is None:
+            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")
+        elif "Could not open" in result:
+            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")
+        else:
+            QMessageBox.information(self, "Éxito", "Conexión exitosa con el termostato")
 
 
     ######################### JSON #################################
@@ -558,6 +560,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rellenar_datos_temp(self, datos):
         """Asigna los valores correspondientes a cada campo de texto de temperatura."""
+        print(type(datos['Rampa']))
         self.dSpinBoxTempRampa.setValue(datos['Rampa'])
         self.dSpinBoxTempIni.setValue(datos['tempIni'])
         self.dSpinBoxTempSet.setValue(datos['tempSet'])
@@ -614,8 +617,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
       
     def pintar_grafica(self, temperatura_bloque, temperatura_liquido, temperatura_consigna):
         """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
-        # Crear un widget de gráfico
-        self.plot_widget = pg.PlotWidget()
+        # Crear un widget de gráfico si no existe
+        if not hasattr(self, 'plot_widget'):
+            self.plot_widget = pg.PlotWidget()
+        else:
+            # Eliminar todos los elementos de la escena para repintar
+            self.graphicsView.scene().clear()
 
         print(temperatura_bloque)
         print(temperatura_liquido)
@@ -652,6 +659,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Agregar el proxy al graphicsView
         self.graphicsView.scene().addItem(proxy)
+
 
     ######################### EXPERIMENTO #################################
 
@@ -783,12 +791,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
         self.timer_temp_inicial.start(60000)
 
+        self.timer_grafica = QTimer(self)
+        self.timer_grafica.timeout.connect(lambda: self.pintar_grafica(temp_bloc, temp_liquid, temp_set))
+        self.timer_grafica.start(5000)
+
 
     def pararExperimento(self):
         lauda.stop()
         self.timer_rampa.stop()
         self.timer_comprobacion_fotos.stop()
-        self.actualizar_grafica_thread.stop()
+        self.timer_grafica.stop()
         global parar
         parar = True
 
