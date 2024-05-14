@@ -172,10 +172,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 cv2.circle(cv_img, (int(circle[0]), int(circle[1])), int(circle[2]), (0, 255, 0), 2)
 
             # Mostrar la imagen con los círculos detectados
-            cv2.imshow('Círculos', cv_img)
+            cv2.imshow('Circulos', cv_img)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
-
         else:
             print("Error al capturar la imagen. No se detectarán círculos.")
 
