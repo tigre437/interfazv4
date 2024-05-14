@@ -1490,7 +1490,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="buttonFotoPrueba">
+                  <widget class="QCheckBox" name="checkBoxPruebas">
                    <property name="maximumSize">
                     <size>
                      <width>120</width>
@@ -1498,7 +1498,7 @@
                     </size>
                    </property>
                    <property name="text">
-                    <string>Foto de Prueba</string>
+                    <string>Modo Pruebas</string>
                    </property>
                   </widget>
                  </item>
