@@ -978,9 +978,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         transform.rotate(90)
         qt_img = qt_img.transformed(transform)
 
+        # Escalar la imagen para que ocupe todo el espacio del QLabel
+        qt_img = qt_img.scaled(self.labelCamara.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+
         # Ajustar el tamaño del widget labelCamara
         self.labelCamara.setPixmap(qt_img)
         self.labelCamara.setFixedSize(qt_img.size())
+
 
     def get_status(self):
         """Actualiza la fecha y hora en el widget datetime."""
