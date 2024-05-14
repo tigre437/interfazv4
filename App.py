@@ -135,15 +135,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))    
 
-        self.buttonFotoPrueba.clicked.connect(self.detectar_circulos)
 
 
     ######################  DETECCION  ##########################
 
-    def detectar_circulos(self):
+    def detectar_circulos(self, cv_img=None):
         """Detecta y muestra círculos en las imágenes capturadas desde la cámara."""
         # Capturar una foto utilizando el método capturar_foto()
-        cv_img = self.video_thread.capturar_foto()
+        if cv_img is None:
+            cv_img = self.video_thread.capturar_foto()
 
         if cv_img is not None:
             # Convertir la imagen a escala de grises
@@ -171,12 +171,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for circle in circle_list:
                 cv2.circle(cv_img, (int(circle[0]), int(circle[1])), int(circle[2]), (0, 255, 0), 2)
 
-            # Mostrar la imagen con los círculos detectados
-            cv2.imshow('Circulos', cv_img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            return cv_img
+
         else:
             print("Error al capturar la imagen. No se detectarán círculos.")
+            return None
+
 
 
     ######################  ANALISIS  ##########################
@@ -973,7 +973,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_image(self, cv_img):
         """Actualiza el QLabel con una nueva imagen de OpenCV"""
-        qt_img = self.convert_cv_qt(cv_img)
+
+        if(self.checkBoxPruebas.isChecked()):
+            qt_img = self.convert_cv_qt(self.detectar_circulos(cv_img))
+        else:
+            qt_img = self.convert_cv_qt(cv_img)
         transform = QTransform()
         transform.rotate(90)
         qt_img = qt_img.transformed(transform)
