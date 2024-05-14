@@ -36,6 +36,11 @@ class VideoThread(QThread):
     def settings(self):
         self.cap.set(cv2.CAP_PROP_SETTINGS, 1)
 
+    def capturar_foto(self):
+        """Captura una foto y la devuelve"""
+        ret, cv_img = self.cap.read()
+        return cv_img
+
     def save(self, ruta_experimento, area, doble):
         print("hilo de foto")
         # Obtener la fecha y hora actual
@@ -44,8 +49,10 @@ class VideoThread(QThread):
         # Formatear la fecha y hora en el formato deseado, por ejemplo: HHMMSS
         timestamp = now.strftime("%H%M%S")
 
-        ret, cv_img = self.cap.read()
-        if ret:
+        # Capturar una foto
+        cv_img = self.capturar_foto()
+
+        if cv_img is not None:
             print("1")
             if not doble:
                 print("2")
@@ -60,6 +67,7 @@ class VideoThread(QThread):
             cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)
         else:
             print("Error al capturar la imagen. No se guardará.")
+
 
     def set_camera_index(self, index):
         """Establece el índice del dispositivo de captura"""

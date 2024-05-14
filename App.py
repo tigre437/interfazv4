@@ -130,12 +130,58 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonRecargar.clicked.connect(lambda index: self.filechooser(self.txtArchivos.text()))
 
-        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)       
+        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)   
 
 
-        ######################  ANALISIS  ##########################
+        self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))    
 
-        self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))
+        self.buttonFotoPrueba.clicked.connect(self.detectar_circulos)
+
+
+    ######################  DETECCION  ##########################
+
+    def detectar_circulos(self):
+        """Detecta y muestra círculos en las imágenes capturadas desde la cámara."""
+        # Capturar una foto utilizando el método capturar_foto()
+        cv_img = self.video_thread.capturar_foto()
+
+        if cv_img is not None:
+            # Convertir la imagen a escala de grises
+            grey = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+
+            # Establecer el umbral para crear la imagen binaria
+            _, binary = cv2.threshold(grey, self.dSpinBoxUmbral.value(), 255, cv2.THRESH_BINARY)
+
+            # Encontrar los contornos de la imagen binaria
+            contours, _ = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+            circle_list = []
+
+            # Seleccionar contornos cerrados de más de 5 lados, con radio de 15 a 20 píxeles 
+            for cnt in contours:
+                approx = cv2.approxPolyDP(cnt, .03 * cv2.arcLength(cnt, True), True)
+                if len(approx) >= 5:
+                    if cv2.isContourConvex(approx):
+                        (cx, cy), radius = cv2.minEnclosingCircle(cnt)
+                        if radius >= self.dSpinBoxRadioMin.value() and radius <= self.dSpinBoxRadioMax.value() and cy > 50:
+                            circle_list.append([cx, cy, radius])
+                            cv2.circle(cv_img, (int(cx), int(cy)), int(radius), (0, 255, 0), 2)
+
+            # Dibujar los círculos detectados en la imagen
+            for circle in circle_list:
+                cv2.circle(cv_img, (int(circle[0]), int(circle[1])), int(circle[2]), (0, 255, 0), 2)
+
+            # Mostrar la imagen con los círculos detectados
+            cv2.imshow('Círculos', cv_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+
+        else:
+            print("Error al capturar la imagen. No se detectarán círculos.")
+
+
+    ######################  ANALISIS  ##########################
+    
 
     def desactivar_placaB(self):
         if self.checkBoxAmbasPlacas.isChecked():
@@ -612,7 +658,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
 
 
-    ######################## GRAFICA ####################################
+    ######################## GRAFICA ########################
 
       
     def pintar_grafica(self, temperatura_bloque, temperatura_liquido, temperatura_consigna):

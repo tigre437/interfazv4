@@ -1489,6 +1489,19 @@
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="QPushButton" name="buttonFotoPrueba">
+                   <property name="maximumSize">
+                    <size>
+                     <width>120</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>Foto de Prueba</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -1687,6 +1700,9 @@
                            <width>50</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="maximum">
+                          <double>255.000000000000000</double>
                          </property>
                         </widget>
                        </item>
