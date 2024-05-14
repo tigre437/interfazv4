@@ -1414,7 +1414,7 @@
              </size>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="tab_3">
              <attribute name="title">
@@ -1671,6 +1671,9 @@
                            <width>130</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="maximum">
+                          <number>255</number>
                          </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>

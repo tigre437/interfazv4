@@ -624,15 +624,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # Eliminar todos los elementos de la escena para repintar
             self.graphicsView.scene().clear()
 
-        print(temperatura_bloque)
-        print(temperatura_liquido)
-        print(temperatura_consigna)
+        tiempo_transcurrido = np.arange(len(temperatura_bloque)) * 5 / 60  # 5 segundos por punto de datos, convertido a minutos
 
-        # Agregar las líneas de la gráfica
-        self.plot_widget.plot(temperatura_bloque, pen=pg.mkPen(color='r'), name='Temperatura Bloque')  # Línea roja para la temperatura del bloque
-        self.plot_widget.plot(temperatura_liquido, pen=pg.mkPen(color='b'), name='Temperatura Líquido')  # Línea azul para la temperatura del líquido
-        self.plot_widget.plot(temperatura_consigna, pen=pg.mkPen(color='#939393'), name='Temperatura Consigna')  # Línea gris claro para la temperatura de consigna
-
+    
+        # Actualizar los datos de la gráfica
+        self.plot_widget.plot(tiempo_transcurrido, temperatura_bloque, clear=True, pen=pg.mkPen(color='r'), name='Temperatura Bloque')  # Línea roja para la temperatura del bloque
+        self.plot_widget.plot(tiempo_transcurrido, temperatura_liquido, clear=False, pen=pg.mkPen(color='b'), name='Temperatura Líquido')  # Línea azul para la temperatura del líquido
+        self.plot_widget.plot(tiempo_transcurrido, temperatura_consigna, clear=False, pen=pg.mkPen(color='#939393'), name='Temperatura Consigna')  # Línea gris claro para la temperatura de consigna
+            
         # Personalizar la apariencia del gráfico
         self.plot_widget.setBackground('k')  # Color de fondo
         self.plot_widget.setTitle('Rampa de enfriamiento')  # Título

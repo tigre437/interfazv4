@@ -656,6 +656,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_22.addWidget(self.label_7)
         self.hSliderUmbral = QtWidgets.QSlider(parent=self.frame_11)
         self.hSliderUmbral.setMaximumSize(QtCore.QSize(130, 16777215))
+        self.hSliderUmbral.setMaximum(255)
         self.hSliderUmbral.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.hSliderUmbral.setObjectName("hSliderUmbral")
         self.horizontalLayout_22.addWidget(self.hSliderUmbral)
