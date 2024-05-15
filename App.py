@@ -8,8 +8,8 @@ from PyQt6.QtWidgets import (
     QFileDialog, QDialog, QLabel, QLineEdit,
     QPushButton, QVBoxLayout, QMessageBox, QGraphicsProxyWidget, QListWidgetItem, QDialog, QWidget
 )
-from PyQt6.QtCore import pyqtSlot, Qt, pyqtSignal, QThread, QTimer
-from PyQt6.QtGui import QPixmap, QTransform, QPainter
+from PyQt6.QtCore import pyqtSlot, Qt, QTimer
+from PyQt6.QtGui import QPixmap, QTransform
 from interfazv1 import Ui_MainWindow  # Importa la interfaz de la ventana principal
 from pygrabber.dshow_graph import FilterGraph
 import datetime
