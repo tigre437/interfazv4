@@ -165,7 +165,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         (cx, cy), radius = cv2.minEnclosingCircle(cnt)
                         if radius >= self.dSpinBoxRadioMin.value() and radius <= self.dSpinBoxRadioMax.value() and cy > 50:
                             circle_list.append([cx, cy, radius])
-                            cv2.circle(cv_img, (int(cx), int(cy)), int(radius), (0, 255, 0), 2)
 
             # Dibujar los círculos detectados en la imagen
             for idx, circle in enumerate(circle_list, start=1):
