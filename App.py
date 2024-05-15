@@ -76,6 +76,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.checkBoxHabilitarB.stateChanged.connect(self.tab_changed)
         self.checkBoxAmbasPlacas.stateChanged.connect(self.tab_changed)
         self.checkBoxAmbasPlacas.stateChanged.connect(self.desactivar_placaB)
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.cambiarPlacaA)
 
         self.buttonGuardarParamDetec.clicked.connect(self.guardar_datos_detection)
         self.buttonCancelarParamDetec.clicked.connect(self.cancelar_cambios_detect)
@@ -212,6 +213,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtTasaMuestreoPlacaA.setEnabled(True)
             self.txtVelEnfriamientoPlacaA.setEnabled(True)
             self.txtObservPlacaA.setEnabled(True)
+            self.checkBoxAmbasPlacas.setEnabled(False)
+            self.tabWidget_2.widget(2).setEnabled(False)
+
+        elif self.checkBoxAmbasPlacas.isChecked():
+            self.txtNombrePlacaA.setEnabled(True)
+            self.txtVDropPlacaA.setEnabled(True)
+            self.txtVWashPlacaA.setEnabled(True)
+            self.txtFactorDilucPlacaA.setEnabled(True)
+            self.txtFraccFiltroPlacaA.setEnabled(True)
+            self.txtTasaMuestreoPlacaA.setEnabled(True)
+            self.txtVelEnfriamientoPlacaA.setEnabled(True)
+            self.txtObservPlacaA.setEnabled(True)
+            self.checkBoxHabilitarA.setEnabled(False)
+            self.tabWidget_2.widget(2).setEnabled(False)
         else:
             self.txtNombrePlacaA.setEnabled(False)
             self.txtVDropPlacaA.setEnabled(False)
@@ -221,6 +236,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtTasaMuestreoPlacaA.setEnabled(False)
             self.txtVelEnfriamientoPlacaA.setEnabled(False)
             self.txtObservPlacaA.setEnabled(False)
+            self.checkBoxAmbasPlacas.setEnabled(True)
+            self.checkBoxHabilitarA.setEnabled(True)
+            self.tabWidget_2.widget(2).setEnabled(True)
 
     def cambiarPlacaB(self):
         """Habilita o deshabilita campos según el estado del checkbox."""
@@ -233,6 +251,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtTasaMuestreoPlacaB.setEnabled(True)
             self.txtVelEnfriamientoPlacaB.setEnabled(True)
             self.txtObservPlacaB.setEnabled(True)
+            self.checkBoxAmbasPlacas.setEnabled(False)
+            self.tabWidget_2.widget(1).setEnabled(False)
         else:
             self.txtNombrePlacaB.setEnabled(False)
             self.txtVDropPlacaB.setEnabled(False)
@@ -242,6 +262,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtTasaMuestreoPlacaB.setEnabled(False)
             self.txtVelEnfriamientoPlacaB.setEnabled(False)
             self.txtObservPlacaB.setEnabled(False)
+            self.checkBoxAmbasPlacas.setEnabled(True)
+            self.tabWidget_2.widget(1).setEnabled(True)
             
     def buscar_carpetas_sns(self, directorio):
         """Retorna una lista de carpetas que comienzan con 'SNS' dentro del directorio dado."""
