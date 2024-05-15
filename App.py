@@ -1,5 +1,4 @@
 import os
-import time
 import cv2
 import json
 import numpy as np
@@ -14,11 +13,8 @@ from PyQt6.QtGui import QPixmap, QTransform, QPainter
 from interfazv1 import Ui_MainWindow  # Importa la interfaz de la ventana principal
 from pygrabber.dshow_graph import FilterGraph
 import datetime
-import threading  
 from lauda import Lauda
 from VideoThread import VideoThread
-import random
-from grafica import ActualizarGraficaThread
 
 
 
