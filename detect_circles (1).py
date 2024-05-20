@@ -98,7 +98,7 @@ cv2.destroyAllWindows()
 circles_order = np.vstack((circles_order_pcr1,circles_order_pcr2))
 
 
-#%% OBTENCION DE LA ESCALA DE GRISES DE LOS POZOS A PARTIR DE LAS IMAGENES EN LA CARPETA
+# OBTENCION DE LA ESCALA DE GRISES DE LOS POZOS A PARTIR DE LAS IMAGENES EN LA CARPETA
 # matriz_colores_A,matriz_colores_B, background_color = test_color_values_2exp.get_color_values_from_images(images,circles_order_pcr1,circles_order_pcr2)
 matriz_colores_A,matriz_colores_B = test_color_values_DRINCZ.get_color_values_from_images(images,circles_order_pcr1,circles_order_pcr2)
 
@@ -138,7 +138,7 @@ for i in range(96):
     
 color_difference = np.vstack((color_difference_A_norm, color_difference_B_norm))
 
-#%%
+
 # Tengo que contar los saltos de color en cada instante de tiempo o temperatura y meterlo en una variable que será NF
 threshold = 0.99
 Vdrop = 0.2E-3  # en L

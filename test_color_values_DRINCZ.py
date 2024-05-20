@@ -47,32 +47,23 @@ def get_color_values_from_images(folder, circles_A, circles_B):
             roi_A = images[j][round(circles_A[i, 1]) - round(0.6 * circles_A[i, 2]):round(circles_A[i, 1]) + round(0.6 * circles_A[i, 2]), round(circles_A[i, 0]) - round(0.6 * circles_A[i, 2]):round(circles_A[i, 0]) + round(0.6 * circles_A[i, 2])]
             roi_B = images[j][round(circles_B[i, 1]) - round(0.6 * circles_B[i, 2]):round(circles_B[i, 1]) + round(0.6 * circles_B[i, 2]), round(circles_B[i, 0]) - round(0.6 * circles_B[i, 2]):round(circles_B[i, 0]) + round(0.6 * circles_B[i, 2])]
             
-           # print("ROI A:", roi_A.shape)
-           # print("ROI B:", roi_B.shape)
+
             
             # Calcular los valores medios de gris y las desviaciones estándar de gris para las regiones circulares de interés A y B
             grey_mean_circles_A_i = np.mean(roi_A)
             grey_mean_circles_B_i = np.mean(roi_B)
             grey_std_circles_A_i = np.std(roi_A)
             grey_std_circles_B_i = np.std(roi_B)
-            
-           # print("Grey mean A:", grey_mean_circles_A_i)
-           # print("Grey mean B:", grey_mean_circles_B_i)
-           # print("Grey std A:", grey_std_circles_A_i)
-           # print("Grey std B:", grey_std_circles_B_i)
+
             
             # Calcular los valores de color normalizados para las regiones circulares de interés A y B
             color_values_i_A = (np.mean(roi_A) - grey_mean_circles_A_i) / grey_std_circles_A_i
             color_values_i_B = (np.mean(roi_B) - grey_mean_circles_B_i) / grey_std_circles_B_i
 
-           # print("Color values A:", color_values_i_A)
-           # print("Color values B:", color_values_i_B)
 
             # Agregar los valores normalizados a las listas correspondientes
             color_values_A.append(color_values_i_A)
             color_values_B.append(color_values_i_B)
-
-            
 
 
     # Reorganizar los valores normalizados en matrices 2D para cada conjunto de círculos de interés
