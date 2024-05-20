@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -2246,7 +2246,7 @@
           <item>
            <widget class="QPushButton" name="buttonEmpezar">
             <property name="text">
-             <string>EMPEZAR</string>
+             <string>ANALIZAR</string>
             </property>
            </widget>
           </item>

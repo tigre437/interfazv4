@@ -1298,7 +1298,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         self.tabWidget_2.setCurrentIndex(0)
         self.tabWidgetConfig.setCurrentIndex(0)
         self.tabWidget_3.setCurrentIndex(0)
@@ -1388,7 +1388,7 @@ class Ui_MainWindow(object):
         self.labelCamara.setText(_translate("MainWindow", "IMAGEN CAMARA"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Experimento"))
         self.comboBoxFiltroAn.setPlaceholderText(_translate("MainWindow", "-- Selecciona un filtro --"))
-        self.buttonEmpezar.setText(_translate("MainWindow", "EMPEZAR"))
+        self.buttonEmpezar.setText(_translate("MainWindow", "ANALIZAR"))
         self.buttonCargar.setText(_translate("MainWindow", "CARGAR"))
         self.buttonGuardar.setText(_translate("MainWindow", "GUARDAR"))
         self.label_24.setText(_translate("MainWindow", "Nombre: "))
