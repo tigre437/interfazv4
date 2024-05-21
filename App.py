@@ -15,6 +15,7 @@ from pygrabber.dshow_graph import FilterGraph
 import datetime
 from lauda import Lauda
 from VideoThread import VideoThread
+from detect_circles import detect_circles
 
 
 
@@ -127,7 +128,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonRecargar.clicked.connect(lambda index: self.filechooser(self.txtArchivos.text()))
 
-        self.pintar_grafica(temp_bloc, temp_liquid, temp_set)   
+        self.grafica_temperatura(temp_bloc, temp_liquid, temp_set)   
 
 
         self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))    
@@ -678,7 +679,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ######################## GRAFICA ########################
 
       
-    def pintar_grafica(self, temperatura_bloque, temperatura_liquido, temperatura_consigna):
+    def grafica_temperatura(self, temperatura_bloque, temperatura_liquido, temperatura_consigna):
         """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
         # Crear un widget de gráfico si no existe
         if not hasattr(self, 'plot_widget'):
@@ -722,6 +723,49 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Agregar el proxy al graphicsView
         self.graphicsView.scene().addItem(proxy)
 
+
+    def grafica_frozen_fraction(self, temperatura, congelacion):
+        """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
+        # Crear un widget de gráfico si no existe
+        if not hasattr(self, 'plot_widget'):
+            self.plot_widget = pg.PlotWidget()
+        else:
+            # Eliminar todos los elementos de la escena para repintar
+            self.grafica1.scene().clear()
+
+
+    
+        # Actualizar los datos de la gráfica
+        self.plot_widget.plot(temperatura, congelacion, clear=True, pen=pg.mkPen(color='r'))  # Línea roja para la temperatura del bloque
+            
+        # Personalizar la apariencia del gráfico
+        self.plot_widget.setBackground('k')  # Color de fondo
+        self.plot_widget.setTitle('Rampa de enfriamiento')  # Título
+        self.plot_widget.showGrid(x=True, y=True, alpha=0.2)  # Mostrar rejilla
+        self.plot_widget.getAxis('bottom').setPen(pg.mkPen(color='w'))  # Color del eje x
+        self.plot_widget.getAxis('left').setPen(pg.mkPen(color='w'))  # Color del eje y
+        self.plot_widget.getAxis('bottom').setTextPen('w')  # Color de los números en el eje x
+        self.plot_widget.getAxis('left').setTextPen('w')  # Color de los números en el eje y
+
+        # Agregar etiquetas a los ejes x e y
+        self.plot_widget.setLabel('bottom', text='Temperatura (ºC)', color='w')  # Etiqueta del eje x
+        self.plot_widget.setLabel('left', text='Frozen Fraction', color='w')  # Etiqueta del eje y
+
+        # Mostrar la leyenda
+        self.plot_widget.addLegend()
+
+        # Crear un proxy widget para el plot_widget
+        proxy = QGraphicsProxyWidget()
+        proxy.setWidget(self.plot_widget)
+
+        # Ajustar el tamaño del proxy para que coincida con el plot_widget
+        proxy.setPos(0, 0)
+        proxy.resize(self.grafica1.width() - 2, self.grafica1.height() - 2)
+
+        # Agregar el proxy al grafica1
+        self.grafica1.scene().addItem(proxy)    
+
+    
 
     ######################### EXPERIMENTO #################################
 
@@ -854,7 +898,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_temp_inicial.start(60000)
 
         self.timer_grafica = QTimer(self)
-        self.timer_grafica.timeout.connect(lambda: self.pintar_grafica(temp_bloc, temp_liquid, temp_set))
+        self.timer_grafica.timeout.connect(lambda: self.grafica_temperatura(temp_bloc, temp_liquid, temp_set))
         self.timer_grafica.start(5000)
 
 
