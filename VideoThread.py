@@ -3,6 +3,7 @@ import os
 import datetime
 from PyQt6.QtCore import QThread, pyqtSignal
 import numpy as np
+import csv
 
 
 class VideoThread(QThread):
@@ -41,7 +42,7 @@ class VideoThread(QThread):
         ret, cv_img = self.cap.read()
         return cv_img
 
-    def save(self, ruta_experimento, area, doble):
+    def save(self, ruta_experimento, area, doble, temperatura):
         print("hilo de foto")
         # Obtener la fecha y hora actual
         now = datetime.datetime.now()
@@ -65,6 +66,11 @@ class VideoThread(QThread):
                     cv_img = cv_img[:, width // 2:]  # Recortar la mitad derecha de la imagen
             # Guardar la imagen en la carpeta "imagenes"
             cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)
+
+            # Abrir el archivo CSV y escribir el timestamp y la temperatura
+            with open(os.path.join(f"{ruta_experimento}", f"imagenes.csv"), 'a', newline='') as csv_file:
+                escritor_csv = csv.writer(csv_file)
+                escritor_csv.writerow([timestamp, temperatura])
         else:
             print("Error al capturar la imagen. No se guardará.")
 

@@ -8,7 +8,13 @@ import matplotlib.pyplot as plt
 
 def detect_circles(experiment, threshold, threshold_b ):
 
-    images = os.path.join(experiment)
+    experiment="240416_144741_A_UGR240415 B_UGR240415_1_10"
+    threshold=205
+    threshold_b=0.99
+
+
+
+    images = os.path.join(experiment, 'images')
 
     list_images = os.listdir(images)
     list_images.sort()
@@ -21,6 +27,8 @@ def detect_circles(experiment, threshold, threshold_b ):
     #Establezco el threshold para crear la imagen binaria (aquí iría la barra para variarlo)
     _, binary = cv2.threshold(grey, threshold, 255, cv2.THRESH_BINARY)
 
+    cv2.imshow('binary', binary)
+    cv2.waitKey(0)
 
     #Encuentro los contornos de la imagen
     contours,h = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -40,8 +48,10 @@ def detect_circles(experiment, threshold, threshold_b ):
                     circle_list.append([cx, cy, radius])
                     cv2.circle(img, (int(cx), int(cy)), int(radius), (0, 255, 0), 2)
                     # cv2.circle(img, (int(cx), int(cy)), 1, (0, 0, 255), 3)
-
+    
     circles = np.asarray(circle_list)
+
+    print(circles)
 
     circles = circles[circles[:,1].argsort()] 
     circles_pcr1 = circles[0:96,:]

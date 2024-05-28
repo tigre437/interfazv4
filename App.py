@@ -2,6 +2,7 @@ import os
 import cv2
 import json
 import numpy as np
+import csv
 import pyqtgraph as pg
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtWidgets import (
@@ -16,6 +17,7 @@ import datetime
 from lauda import Lauda
 from VideoThread import VideoThread
 from detect_circles import detect_circles
+import pandas
 
 
 
@@ -42,9 +44,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Graficas
         scene = QtWidgets.QGraphicsScene()
+        ff1 = QtWidgets.QGraphicsScene()
+        ff2 = QtWidgets.QGraphicsScene()
 
         # Asignar el QGraphicsScene a graphicsView
         self.graphicsView.setScene(scene)
+        self.grafica1.setScene(ff1)
+        self.grafica2.setScene(ff2)
+        
 
         # Conexiones de los botones con los métodos correspondientes
         self.buttonBuscarArchivos.clicked.connect(self.filechooser)
@@ -132,7 +139,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))    
+        
 
+        self.buttonAnalizar.clicked.connect(self.analizar_imagenes)
 
 
     ######################  DETECCION  ##########################
@@ -342,7 +351,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def cancelar_cambios_temp(self):
         """Cancela la edición del filtro seleccionado."""
         datos_temp = self.leer_json_temp(self.obtener_ruta_json("temp.json"))
-        print(datos_temp)
         if (datos_temp != None):
             self.rellenar_datos_temp(datos_temp)
 
@@ -684,9 +692,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Crear un widget de gráfico si no existe
         if not hasattr(self, 'plot_widget'):
             self.plot_widget = pg.PlotWidget()
-        else:
-            # Eliminar todos los elementos de la escena para repintar
-            self.graphicsView.scene().clear()
+        
+        # Eliminar todos los elementos de la escena para repintar
+        self.graphicsView.scene().clear()
 
         tiempo_transcurrido = np.arange(len(temperatura_bloque)) * 5 / 60  # 5 segundos por punto de datos, convertido a minutos
 
@@ -727,43 +735,45 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def grafica_frozen_fraction(self, temperatura, congelacion):
         """Pinta una gráfica utilizando PyQtGraph y la muestra en un QGraphicsView."""
         # Crear un widget de gráfico si no existe
-        if not hasattr(self, 'plot_widget'):
-            self.plot_widget = pg.PlotWidget()
-        else:
-            # Eliminar todos los elementos de la escena para repintar
-            self.grafica1.scene().clear()
-
-
-    
-        # Actualizar los datos de la gráfica
-        self.plot_widget.plot(temperatura, congelacion, clear=True, pen=pg.mkPen(color='r'))  # Línea roja para la temperatura del bloque
-            
-        # Personalizar la apariencia del gráfico
-        self.plot_widget.setBackground('k')  # Color de fondo
-        self.plot_widget.setTitle('Rampa de enfriamiento')  # Título
-        self.plot_widget.showGrid(x=True, y=True, alpha=0.2)  # Mostrar rejilla
-        self.plot_widget.getAxis('bottom').setPen(pg.mkPen(color='w'))  # Color del eje x
-        self.plot_widget.getAxis('left').setPen(pg.mkPen(color='w'))  # Color del eje y
-        self.plot_widget.getAxis('bottom').setTextPen('w')  # Color de los números en el eje x
-        self.plot_widget.getAxis('left').setTextPen('w')  # Color de los números en el eje y
-
+        if not hasattr(self, 'plot_widget2'):
+            self.plot_widget2 = pg.PlotWidget()
+        self.plot_widget2.setBackground('k')  # Color de fondo
+        self.plot_widget2.setTitle('Frozen Fraction')  # Título
+        self.plot_widget2.showGrid(x=True, y=True, alpha=0.2)  # Mostrar rejilla
+        self.plot_widget2.getAxis('bottom').setPen(pg.mkPen(color='w'))  # Color del eje x
+        self.plot_widget2.getAxis('left').setPen(pg.mkPen(color='w'))  # Color del eje y
+        self.plot_widget2.getAxis('bottom').setTextPen('w')  # Color de los números en el eje x
+        self.plot_widget2.getAxis('left').setTextPen('w')  # Color de los números en el eje y
         # Agregar etiquetas a los ejes x e y
-        self.plot_widget.setLabel('bottom', text='Temperatura (ºC)', color='w')  # Etiqueta del eje x
-        self.plot_widget.setLabel('left', text='Frozen Fraction', color='w')  # Etiqueta del eje y
-
+        self.plot_widget2.setLabel('bottom', text='Temperatura (ºC)', color='w')  # Etiqueta del eje x
+        self.plot_widget2.setLabel('left', text='Frozen Fraction', color='w')  # Etiqueta del eje y
         # Mostrar la leyenda
-        self.plot_widget.addLegend()
+        self.plot_widget2.addLegend()
+
+        # Limpiar la escena de grafica1 antes de agregar un nuevo gráfico
+        self.grafica1.scene().clear()
 
         # Crear un proxy widget para el plot_widget
-        proxy = QGraphicsProxyWidget()
-        proxy.setWidget(self.plot_widget)
+        proxy2 = QGraphicsProxyWidget()
+        proxy2.setWidget(self.plot_widget2)
 
         # Ajustar el tamaño del proxy para que coincida con el plot_widget
-        proxy.setPos(0, 0)
-        proxy.resize(self.grafica1.width() - 2, self.grafica1.height() - 2)
+        proxy2.setPos(0, 0)
+        proxy2.resize(self.grafica1.width(), self.grafica1.height())
 
         # Agregar el proxy al grafica1
-        self.grafica1.scene().addItem(proxy)    
+        self.grafica1.scene().addItem(proxy2)
+
+        # Actualizar los datos de la gráfica
+        self.plot_widget2.clear()  # Limpiar cualquier dato previo en el gráfico
+        congelacion = pandas.Series(congelacion)
+        temperatura.index = congelacion.index
+        print(temperatura.index)
+        print(congelacion.index)
+
+
+        self.plot_widget2.plot(temperatura, congelacion, pen=pg.mkPen(color='r'))
+
 
     
 
@@ -901,7 +911,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_grafica.timeout.connect(lambda: self.grafica_temperatura(temp_bloc, temp_liquid, temp_set))
         self.timer_grafica.start(5000)
 
-
     def pararExperimento(self):
         lauda.stop()
         self.timer_rampa.stop()
@@ -912,7 +921,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rampa_temperatura(self, objetivo):
         global temp
-        print(temp)
         if(lauda.get_t_set() > objetivo):
             lauda.set_t_set(temp - 1)
             temp = temp - 1
@@ -924,12 +932,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.timer_rampa.start(60000)
             self.timer_temp_inicial.stop()
 
-
     def guardar_temperaturas(self):
         temp_bloc.append(lauda.get_t_ext())
         temp_liquid.append(lauda.get_t_int())
         temp_set.append(lauda.get_t_set())
-
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
         dialogo = QMessageBox()
@@ -940,7 +946,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         dialogo.setDefaultButton(QMessageBox.StandardButton.No)
         respuesta = dialogo.exec()
         return respuesta == QMessageBox.StandardButton.Yes
-
 
     def tab_changed(self):
 
@@ -979,7 +984,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         return cameras
 
-
     def fillCameras(self):
         """Llena el combobox con las cámaras disponibles."""
         available_cameras = self.get_available_cameras()
@@ -1000,28 +1004,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             os.makedirs(ruta_imagenes)
 
         self.timer_comprobacion_fotos = QTimer(self)
-        self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(ruta_imagenes, datos_temp))
+        self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(datos_temp))
 
         # Iniciar QTimer para que se ejecute cada minuto (60,000 milisegundos)
         print("Se inicia la comprobacion de fotos")
         self.timer_comprobacion_fotos.start(60000)
 
-
-    def comprobar_fotos(self, ruta_imagenes, datos_temp):
+    def comprobar_fotos(self, datos_temp):
         print("comprobando temperatura imagenes")
+        if(ruta_experimento_activo is None):
+            ruta_experimento_activo = self.obtener_ruta_experimento()
         if (lauda.get_t_ext() == datos_temp['tempImg']):
-            print("temperatura de imagenes correcta")
+            # Escribir los datos en el archivo CSV
+            with open(f'{ruta_experimento_activo}imagenes.csv', 'w', newline='') as archivo_csv:
+                escritor_csv = csv.writer(archivo_csv)
+                escritor_csv.writerow(['Imagen', 'Temperatura'])
+
             self.timer_tomar_fotos = QTimer(self)
             self.timer_tomar_fotos.timeout.connect(self.tomar_fotos)
             self.timer_tomar_fotos.start(5000)
-            print("iniciado temperizador de imagenes")
+            print("iniciado temporizador de imagenes")
             self.timer_comprobacion_fotos.stop()
-
 
     def tomar_fotos(self, ruta_imagenes):
         print("FOTO")
-        self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked())
-
+        self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked(), self.lauda.get_t_ext())
 
     @pyqtSlot(np.ndarray)
 
@@ -1051,7 +1058,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.labelCamara.setPixmap(qt_img)
         self.labelCamara.setFixedSize(qt_img.size())
 
-
     def get_status(self):
         """Actualiza la fecha y hora en el widget datetime."""
         self.datetime.setText(f'{datetime.datetime.now():%m/%d/%Y %H:%M:%S}')
@@ -1064,8 +1070,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         convert_to_Qt_format = QtGui.QImage(rgb_image.data, w, h, bytes_per_line, QtGui.QImage.Format.Format_RGB888)
         p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.AspectRatioMode.KeepAspectRatio)
         return QPixmap.fromImage(p)
-
-
 
 ######################## ANALISIS #################################
 
@@ -1176,7 +1180,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def mostrar_nombre_experimento(self, item):
         self.lblExperimentoSeleccionado.setText(item.text())
 
-
     def guardar_datos_experimento(self):
         """Guarda los datos del experimento en un archivo JSON."""
         # Obtener los datos de los campos del experimento
@@ -1223,7 +1226,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             json.dump(datos_experimento, file)
 
         QMessageBox.information(self, "Guardado", "Los datos del experimento se han actualizado correctamente.", QMessageBox.StandardButton.Ok)
-        
+            
+
     def cargar_imagenes(self):
         # Ruta de la carpeta que contiene las imágenes
         carpeta_imagenes = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/imagenes"
@@ -1241,6 +1245,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Ordenar las imágenes por nombre de archivo
         imagenes.sort()
 
+        # Abrir el archivo CSV
+        with open('imagenes.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            datos_csv = list(reader)
+
         # Cargar cada imagen como QPixmap y agregarla a la lista
         for imagen_nombre in imagenes:
             # Crea la ruta de la imagen
@@ -1251,9 +1260,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
             # Aplica cualquier transformación necesaria
             pixmap = pixmap.transformed(QTransform().rotate(90))
+            factor_ajuste = min(self.MostrarPlacaA.width() / pixmap.width(), self.MostrarPlacaA.height() / pixmap.height())
+            pixmap = pixmap.scaled(pixmap.width() * factor_ajuste, pixmap.height() * factor_ajuste, Qt.AspectRatioMode.KeepAspectRatio)
+            
+            # Obtener datos del CSV correspondientes a esta imagen
+            nombre_imagen_csv = imagen_nombre.split('.')[0]  # Eliminar la extensión de archivo
+            datos_imagen_csv = [fila for fila in datos_csv if fila[0] == nombre_imagen_csv]
+            temperatura_imagen = datos_imagen_csv[0][1] if datos_imagen_csv else 'N/A'
             
             # Crea una instancia de la clase Imagen y agrega a la lista
-            imagen = Imagen(imagen_nombre, pixmap, 0)  # CAMBIAR POR LA TEMPERATURA QUE TENGA EL LIQUIDO
+            imagen = Imagen(imagen_nombre, pixmap, temperatura_imagen)
             lista_imagenes_analisis.append(imagen)
 
         self.sliderFotos.setMaximum(len(lista_imagenes_analisis) - 1) 
@@ -1263,6 +1279,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblTempA.setText(lista_imagenes_analisis[0].get_temp())
         print("Dimensiones de la imagen:", pixmap.size().width(), "x", pixmap.size().height())
         print("Dimensiones del QLabel:", self.MostrarPlacaA.width(), "x", self.MostrarPlacaA.height())
+
     
     def actualizar_imagen(self):
         # Obtener el índice seleccionado por el slider
@@ -1271,6 +1288,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MostrarPlacaA.setPixmap(lista_imagenes_analisis[indice_imagen].get_pixmap())
         self.lblImagenA.setText(lista_imagenes_analisis[indice_imagen].get_nombre())
         self.lblTempA.setText(str(lista_imagenes_analisis[indice_imagen].get_temp()))
+
+    def analizar_imagenes(self):
+        ffa, ffb, tw = detect_circles("240416_144741_A_UGR240415 B_UGR240415_1_10", 205, 0.99)
+        self.grafica_frozen_fraction(tw, ffa)
 
 ####################### OBJETO FOTO ###########################
 
@@ -1293,7 +1314,7 @@ class Imagen:
         self._pixmap = pixmap
 
     def get_temp(self):
-        return (self._temp + "º")
+        return (str(self._temp) + "º")
 
     def set_temp(self, temp):
         self._temp = temp
