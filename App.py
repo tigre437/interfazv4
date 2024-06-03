@@ -144,6 +144,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonAnalizar.clicked.connect(self.analizar_imagenes)
 
 
+        self.timer_rampa = QTimer(self)
+        self.timer_temp_inicial = QTimer(self)
+        self.timer_grafica = QTimer(self)
+
+
     ######################  DETECCION  ##########################
 
     def detectar_circulos(self, cv_img=None):
@@ -434,34 +439,39 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def leer_json_filtro(self, archivo_json):
         """Lee un archivo JSON y devuelve los datos relevantes."""
+        if not os.path.exists(archivo_json):
+            # Si el archivo no existe, crea uno con valores por defecto
+            data = {
+                'label': 'Sin etiqueta',
+                'storage_temperature': 0,
+                'sampler_id': 'Sin ID',
+                'filter_position': 0,
+                'air_volume': 0.0,
+                'start_time': 'Sin hora de inicio',
+                'end_time': 'Sin hora de fin',
+                'observations': 'Sin observaciones'
+            }
+            with open(archivo_json, 'w') as f:
+                json.dump(data, f)
+            # Ahora el archivo ha sido creado, así que lo leemos
+            return data
+
         try:
             with open(archivo_json, 'r') as f:
                 data = json.load(f)
-        except FileNotFoundError:
-            QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no existe.", QMessageBox.StandardButton.Ok)
-            return
         except json.JSONDecodeError:
             QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
             return
 
-        label = data.get('label', 'Sin etiqueta')
-        storage_temperature = data.get('storage_temperature', 0)
-        sampler_id = data.get('sampler_id', 'Sin ID')
-        filter_position = data.get('filter_position', 0)
-        air_volume = data.get('air_volume', 0.0)
-        start_time = data.get('start_time', 'Sin hora de inicio')
-        end_time = data.get('end_time', 'Sin hora de fin')
-        observations = data.get('observations', 'Sin observaciones')
-
         return {
-            'label': label,
-            'storage_temperature': storage_temperature,
-            'sampler_id': sampler_id,
-            'filter_position': filter_position,
-            'air_volume': air_volume,
-            'start_time': start_time,
-            'end_time': end_time,
-            'observations': observations
+            'label': data.get('label', 'Sin etiqueta'),
+            'storage_temperature': data.get('storage_temperature', 0),
+            'sampler_id': data.get('sampler_id', 'Sin ID'),
+            'filter_position': data.get('filter_position', 0),
+            'air_volume': data.get('air_volume', 0.0),
+            'start_time': data.get('start_time', 'Sin hora de inicio'),
+            'end_time': data.get('end_time', 'Sin hora de fin'),
+            'observations': data.get('observations', 'Sin observaciones')
         }
 
     def rellenar_datos_filtro(self, datos):
@@ -532,28 +542,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         QMessageBox.information(self, "Guardado", "Los datos del filtro se han actualizado correctamente.", QMessageBox.StandardButton.Ok)
 
-    def leer_json_detection(self, archivo_json):
+
+    def leer_json_deteccion(self, archivo_json):
         """Lee un archivo JSON de detección y devuelve los datos relevantes."""
+        if not os.path.exists(archivo_json):
+            # Si el archivo no existe, crea uno con valores por defecto
+            data = {
+                'threshold': 240,
+                'min_radius': 9,
+                'max_radius': 11
+            }
+            with open(archivo_json, 'w') as f:
+                json.dump(data, f)
+            # Ahora el archivo ha sido creado, así que lo leemos
+            return data
+
         try:
             with open(archivo_json, 'r') as f:
                 data = json.load(f)
-        except FileNotFoundError:
-            QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no existe.", QMessageBox.StandardButton.Ok)
-            return
         except json.JSONDecodeError:
             QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
             return
 
-        threshold = data.get('threshold', 180)
-        min_radius = data.get('min_radius', 14)
-        max_radius = data.get('max_radius', 20)
-        polygon = data.get('polygon', 5)
-
         return {
-            'threshold': threshold,
-            'min_radius': min_radius,
-            'max_radius': max_radius,
-            'polygon': polygon
+            'threshold': data.get('threshold', 240),
+            'min_radius': data.get('min_radius', 9),
+            'max_radius': data.get('max_radius', 11)
         }
 
     def rellenar_datos_detection(self, datos):
@@ -564,20 +578,33 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dSpinBoxRadioMin.setValue(datos['min_radius'])
         self.hSliderRadioMax.setValue(datos['max_radius'])
         self.dSpinBoxRadioMax.setValue(datos['max_radius'])
-        self.hSliderGradoPolig.setValue(datos['polygon'])
-        self.dSpinBoxGradoPolig.setValue(datos['polygon'])
 
-    def crear_json_detection(self, ruta_carpeta_sns):
-        """Crea el archivo detection.json."""
-        ruta_detection_json = os.path.join(ruta_carpeta_sns, 'detection.json')
-        with open(ruta_detection_json, 'w') as file:
-            json.dump({
-                "threshold": 180,
-                "min_radius": 14,
-                "max_radius": 20,
-                "polygon": 5
+    def leer_json_detection(self, archivo_json):
+        """Lee un archivo JSON de detección y devuelve los datos relevantes."""
+        if not os.path.exists(archivo_json):
+            # Si el archivo no existe, crea uno con valores por defecto
+            data = {
+                'threshold': 240,
+                'min_radius': 9,
+                'max_radius': 11
             }
-            , file) 
+            with open(archivo_json, 'w') as f:
+                json.dump(data, f)
+            # Ahora el archivo ha sido creado, así que lo leemos
+            return data
+
+        try:
+            with open(archivo_json, 'r') as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
+            return
+
+        return {
+            'threshold': data.get('threshold', 240),
+            'min_radius': data.get('min_radius', 9),
+            'max_radius': data.get('max_radius', 11)
+        } 
 
     def guardar_datos_detection(self):
         """Guarda los datos de detección en un archivo JSON."""
@@ -585,15 +612,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         threshold = self.dSpinBoxUmbral.value()
         min_radius = self.dSpinBoxRadioMin.value()
         max_radius = self.dSpinBoxRadioMax.value()
-        polygon = self.dSpinBoxGradoPolig.value()
 
 
         # Crear un diccionario con los datos de detección
         datos_detection = {
             'threshold': threshold,
             'min_radius': min_radius,
-            'max_radius': max_radius,
-            'polygon': polygon
+            'max_radius': max_radius
         }
 
         # Obtener la ruta del archivo JSON
@@ -608,28 +633,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def leer_json_temp(self, archivo_json):
         """Lee un archivo JSON de temperatura y devuelve los datos relevantes."""
+        if not os.path.exists(archivo_json):
+            # Si el archivo no existe, crea uno con valores por defecto
+            data = {
+                'Rampa': 0.00,
+                'tempIni': 0.00,
+                'tempSet': 0.00,
+                'tempImg': 0.00
+            }
+            with open(archivo_json, 'w') as f:
+                json.dump(data, f)
+            # Ahora el archivo ha sido creado, así que lo leemos
+            return data
+
         try:
             with open(archivo_json, 'r') as f:
                 data = json.load(f)
-        except FileNotFoundError:
-            QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no existe.", QMessageBox.StandardButton.Ok)
-            return
         except json.JSONDecodeError:
             QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
             return
 
-        temp_rampa = data.get('Rampa', 0.00)
-        temp_ini = data.get('tempIni', 0.00)
-        temp_set = data.get('tempSet', 0.00)
-        temp_img = data.get('tempImg', 0.00)
-
         return {
-            'Rampa': temp_rampa,
-            'tempIni': temp_ini,
-            'tempSet': temp_set,
-            'tempImg': temp_img
+            'Rampa': data.get('Rampa', 0.00),
+            'tempIni': data.get('tempIni', 0.00),
+            'tempSet': data.get('tempSet', 0.00),
+            'tempImg': data.get('tempImg', 0.00)
         }
 
+        
     def rellenar_datos_temp(self, datos):
         """Asigna los valores correspondientes a cada campo de texto de temperatura."""
         print(type(datos['Rampa']))
@@ -638,16 +669,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dSpinBoxTempSet.setValue(datos['tempSet'])
         self.dSpinBoxTempImg.setValue(datos['tempImg'])
 
-    def crear_json_temp(self, ruta_carpeta_sns):
-        """Crea el archivo temp.json."""
-        ruta_temp_json = os.path.join(ruta_carpeta_sns, 'temp.json')
-        with open(ruta_temp_json, 'w') as file:
-            json.dump({
-                "Rampa": 0.00,
-                "tempIni": 0.00,
-                "tempSet": 0.00,
-                "tempImg": 0.00
-            }, file) 
+    def leer_json_temp(self, archivo_json):
+        """Lee un archivo JSON de temperatura y devuelve los datos relevantes."""
+        if not os.path.exists(archivo_json):
+            # Si el archivo no existe, crea uno con valores por defecto
+            data = {
+                'Rampa': 0.00,
+                'tempIni': 0.00,
+                'tempSet': 0.00,
+                'tempImg': 0.00
+            }
+            with open(archivo_json, 'w') as f:
+                json.dump(data, f)
+            # Ahora el archivo ha sido creado, así que lo leemos
+            return data
+
+        try:
+            with open(archivo_json, 'r') as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            QMessageBox.warning(self, "Advertencia", f"El archivo '{archivo_json}' no es un archivo JSON válido.", QMessageBox.StandardButton.Ok)
+            return
+
+        return {
+            'Rampa': data.get('Rampa', 0.00),
+            'tempIni': data.get('tempIni', 0.00),
+            'tempSet': data.get('tempSet', 0.00),
+            'tempImg': data.get('tempImg', 0.00)
+        }
 
     def guardar_datos_temp(self):
         """Guarda los datos de temperatura en un archivo JSON."""
@@ -903,21 +952,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Guardar la configuración actual de temperatura
         self.save(datos_temp)
-        self.timer_temp_inicial = QTimer(self)
+        
         self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
         self.timer_temp_inicial.start(60000)
 
-        self.timer_grafica = QTimer(self)
+        
         self.timer_grafica.timeout.connect(lambda: self.grafica_temperatura(temp_bloc, temp_liquid, temp_set))
         self.timer_grafica.start(5000)
 
     def pararExperimento(self):
         lauda.stop()
-        self.timer_rampa.stop()
-        self.timer_comprobacion_fotos.stop()
-        self.timer_grafica.stop()
+        if self.timer_rampa.isActive():
+            self.timer_rampa.stop()
+        if self.timer_comprobacion_fotos.isActive():
+            self.timer_comprobacion_fotos.stop()
+        if self.timer_grafica.isActive():
+            self.timer_grafica.stop()
+        
         global parar
         parar = True
+
 
     def rampa_temperatura(self, objetivo):
         global temp
@@ -927,7 +981,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def llevar_temperatura_inicial(self):
         if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
-            self.timer_rampa = QTimer(self)
             self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
             self.timer_rampa.start(60000)
             self.timer_temp_inicial.stop()
@@ -1047,9 +1100,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             qt_img = self.convert_cv_qt(self.detectar_circulos(cv_img))
         else:
             qt_img = self.convert_cv_qt(cv_img)
-        transform = QTransform()
-        transform.rotate(90)
-        qt_img = qt_img.transformed(transform)
+        
 
         # Escalar la imagen para que ocupe todo el espacio del QLabel
         qt_img = qt_img.scaled(self.labelCamara.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
@@ -1098,7 +1149,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         threshold = data.get('threshold', 0.00)
         min_radius = data.get('min_radius', 0.00)
         max_radius = data.get('max_radius', 0.00)
-        polygon = data.get('polygon', 0.00)
         v_drop = data.get('v_drop', 0.00)
         v_wash = data.get('v_wash', 0.00)
         dil_factor = data.get('dil_factor', 0.00)
@@ -1119,7 +1169,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             'threshold': threshold,
             'min_radius': min_radius,
             'max_radius': max_radius,
-            'polygon': polygon,
             'v_drop': v_drop,
             'v_wash': v_wash,
             'dil_factor': dil_factor,
