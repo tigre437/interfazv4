@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1340, 832)
+        MainWindow.resize(1350, 832)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(parent=self.centralwidget)
@@ -839,8 +839,9 @@ class Ui_MainWindow(object):
         self.labelCamara.setMinimumSize(QtCore.QSize(480, 740))
         self.labelCamara.setMaximumSize(QtCore.QSize(480, 740))
         self.labelCamara.setStyleSheet("border: 1px solid black;")
+        self.labelCamara.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.labelCamara.setObjectName("labelCamara")
-        self.horizontalLayout_9.addWidget(self.labelCamara, 0, QtCore.Qt.AlignmentFlag.AlignHCenter|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.horizontalLayout_9.addWidget(self.labelCamara)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")

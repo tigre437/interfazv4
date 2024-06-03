@@ -100,7 +100,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Conectar Sliders con Spin box
         self.hSliderRadioMin.valueChanged.connect(self.dSpinBoxRadioMin.setValue)
         self.hSliderRadioMax.valueChanged.connect(self.dSpinBoxRadioMax.setValue)
-        self.hSliderGradoPolig.valueChanged.connect(self.dSpinBoxGradoPolig.setValue)
         self.hSliderUmbral.valueChanged.connect(self.dSpinBoxUmbral.setValue)
 
         self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)
@@ -108,7 +107,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Conectar Spin boxes con Sliders
         self.dSpinBoxRadioMin.valueChanged.connect(self.hSliderRadioMin.setValue)
         self.dSpinBoxRadioMax.valueChanged.connect(self.hSliderRadioMax.setValue)
-        self.dSpinBoxGradoPolig.valueChanged.connect(self.hSliderGradoPolig.setValue)
         self.dSpinBoxUmbral.valueChanged.connect(self.hSliderUmbral.setValue)
 
 
@@ -281,6 +279,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
         carpetas_sns = [carpeta for carpeta in carpetas if carpeta.startswith("SNS")]
         return carpetas_sns
+    
+    def buscar_carpetas_ugr(self, directorio):
+        """Retorna una lista de carpetas que comienzan con 'UGR' dentro del directorio dado."""
+        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
+        carpetas_ugr = [carpeta for carpeta in carpetas if carpeta.startswith("UGR")]
+        return carpetas_ugr
 
     def filechooser(self, folder = None):
         """Abre un diálogo para seleccionar una carpeta."""
@@ -295,6 +299,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.txtArchivos.setText(carpeta_seleccionada)
         carpetas_sns = self.buscar_carpetas_sns(carpeta_seleccionada)
+        carpetas_ugr = self.buscar_carpetas_ugr(carpeta_seleccionada)
         
         self.comboBoxFiltro.clear()
         self.comboBoxFiltroAn.clear()
@@ -303,10 +308,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
             for carpeta in carpetas_sns:
                 self.comboBoxFiltro.addItem(carpeta)
-            for carpeta in carpetas_sns:
+            for carpeta in carpetas_ugr:
                 self.comboBoxFiltroAn.addItem(carpeta)
         else:
-            QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS' dentro de la carpeta seleccionada.")
+            QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS' o 'UGR' dentro de la carpeta seleccionada.")
 
     def comprobar_opcion_seleccionada(self, index, combobox):
         """Comprueba la opción seleccionada en el combobox de filtros."""
@@ -401,11 +406,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             os.makedirs(ruta_carpeta_sns)
             print(f"Carpeta '{nombre_carpeta_sns}' creada exitosamente en '{directorio_seleccionado}'.")
             carpetas_sns = self.buscar_carpetas_sns(directorio_seleccionado)
+            carpetas_ugr = self.buscar_carpetas_ugr(directorio_seleccionado)
 
             self.comboBoxFiltro.currentIndexChanged.disconnect(check_option_lambda)
             self.comboBoxFiltro.clear()
             self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
             for carpeta in carpetas_sns:
+                self.comboBoxFiltro.addItem(carpeta)
+            for carpeta in carpetas_ugr:
                 self.comboBoxFiltro.addItem(carpeta)
             self.comboBoxFiltro.setCurrentText(nombre_carpeta_sns)
 
@@ -1095,6 +1103,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_image(self, cv_img):
         """Actualiza el QLabel con una nueva imagen de OpenCV"""
+        cv_img = cv2.rotate(cv_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
         if(self.checkBoxPruebas.isChecked()):
             qt_img = self.convert_cv_qt(self.detectar_circulos(cv_img))

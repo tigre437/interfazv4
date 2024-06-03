@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1340</width>
+    <width>1350</width>
     <height>832</height>
    </rect>
   </property>
@@ -2109,7 +2109,7 @@
        <property name="bottomMargin">
         <number>11</number>
        </property>
-       <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+       <item>
         <widget class="QLabel" name="labelCamara">
          <property name="minimumSize">
           <size>
@@ -2128,6 +2128,9 @@
          </property>
          <property name="text">
           <string>IMAGEN CAMARA</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
