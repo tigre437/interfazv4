@@ -22,7 +22,6 @@ import pandas
 
 
 ruta_experimento_activo = None
-parar = False
 lista_imagenes_analisis = []
 temp_bloc = [0]
 temp_liquid = [0]
@@ -51,6 +50,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.graphicsView.setScene(scene)
         self.grafica1.setScene(ff1)
         self.grafica2.setScene(ff2)
+
+        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        self.grafica1.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.grafica1.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        self.grafica2.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.grafica2.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         
 
         # Conexiones de los botones con los métodos correspondientes
@@ -145,6 +153,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_rampa = QTimer(self)
         self.timer_temp_inicial = QTimer(self)
         self.timer_grafica = QTimer(self)
+        self.guardar_temp = QTimer(self)
+        self.timer_tomar_fotos = QTimer(self)
 
 
     ######################  DETECCION  ##########################
@@ -304,13 +314,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.comboBoxFiltro.clear()
         self.comboBoxFiltroAn.clear()
         if carpetas_sns:
-            
             self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
             for carpeta in carpetas_sns:
                 self.comboBoxFiltro.addItem(carpeta)
-            for carpeta in carpetas_ugr:
                 self.comboBoxFiltroAn.addItem(carpeta)
-        else:
+        if carpetas_ugr:
+            for carpeta in carpetas_ugr:
+                self.comboBoxFiltro.addItem(carpeta)
+                self.comboBoxFiltroAn.addItem(carpeta)
+        
+        if not carpetas_sns and not carpetas_ugr:
             QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS' o 'UGR' dentro de la carpeta seleccionada.")
 
     def comprobar_opcion_seleccionada(self, index, combobox):
@@ -340,11 +353,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 datos_temp = self.leer_json_temp(self.txtArchivos.text() + "/" + combobox.currentText() + "/" + "temp.json")
                 if (datos_temp != None):
                     self.rellenar_datos_temp(datos_temp)
-            else:
-                carpetas = self.cargar_lista_experimentos(self.txtArchivos.text() + "/" + combobox.currentText())
 
-
-    
 
     def cancelar_cambios_filtro(self):
         """Cancela la edición del filtro seleccionado."""
@@ -749,13 +758,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Crear un widget de gráfico si no existe
         if not hasattr(self, 'plot_widget'):
             self.plot_widget = pg.PlotWidget()
-        
-        # Eliminar todos los elementos de la escena para repintar
-        self.graphicsView.scene().clear()
+        else:
+            # Limpiar el contenido del widget existente
+            self.plot_widget.clear()
 
         tiempo_transcurrido = np.arange(len(temperatura_bloque)) * 5 / 60  # 5 segundos por punto de datos, convertido a minutos
+        print("Tiempo transcurrido:", tiempo_transcurrido)
+        print("Temperatura del bloque:", temperatura_bloque)
+        print("Temperatura del líquido:", temperatura_liquido)
+        print("Temperatura de consigna:", temperatura_consigna)
 
-    
         # Actualizar los datos de la gráfica
         self.plot_widget.plot(tiempo_transcurrido, temperatura_bloque, clear=True, pen=pg.mkPen(color='r'), name='Temperatura Bloque')  # Línea roja para la temperatura del bloque
         self.plot_widget.plot(tiempo_transcurrido, temperatura_liquido, clear=False, pen=pg.mkPen(color='b'), name='Temperatura Líquido')  # Línea azul para la temperatura del líquido
@@ -777,16 +789,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Mostrar la leyenda
         self.plot_widget.addLegend()
 
-        # Crear un proxy widget para el plot_widget
-        proxy = QGraphicsProxyWidget()
-        proxy.setWidget(self.plot_widget)
+        # Si no hay un QGraphicsProxyWidget creado, crear uno nuevo
+        if not hasattr(self, 'proxy'):
+            self.proxy = QGraphicsProxyWidget()
+            self.graphicsView.scene().addItem(self.proxy)
 
-        # Ajustar el tamaño del proxy para que coincida con el plot_widget
-        proxy.setPos(0, 0)
-        proxy.resize(self.graphicsView.width() - 2, self.graphicsView.height() - 2)
+        self.proxy.resize(self.graphicsView.width() - 4, self.graphicsView.height() - 4)
+        
 
-        # Agregar el proxy al graphicsView
-        self.graphicsView.scene().addItem(proxy)
+        # Configurar el widget dentro del proxy
+        self.proxy.setWidget(self.plot_widget)
+
 
 
     def grafica_frozen_fraction(self, temperatura, congelacion):
@@ -825,14 +838,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.plot_widget2.clear()  # Limpiar cualquier dato previo en el gráfico
         congelacion = pandas.Series(congelacion)
         temperatura.index = congelacion.index
-        print(temperatura.index)
-        print(congelacion.index)
-
 
         self.plot_widget2.plot(temperatura, congelacion, pen=pg.mkPen(color='r'))
-
-
-    
+   
 
     ######################### EXPERIMENTO #################################
 
@@ -954,19 +962,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Habilitar el botón de parar experimento
         self.buttonParar.setEnabled(True)
 
-        # Configurar la variable global 'parar' para indicar que el experimento está en marcha
-        global parar
-        parar = False
-
         # Guardar la configuración actual de temperatura
         self.save(datos_temp)
         
         self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
         self.timer_temp_inicial.start(60000)
 
-        
+        self.guardar_temp.timeout.connect(self.guardar_temperaturas)
+        self.guardar_temp.start(5000)
+
         self.timer_grafica.timeout.connect(lambda: self.grafica_temperatura(temp_bloc, temp_liquid, temp_set))
         self.timer_grafica.start(5000)
+        self.buttonIniciar.setEnabled(False)
 
     def pararExperimento(self):
         lauda.stop()
@@ -976,27 +983,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.timer_comprobacion_fotos.stop()
         if self.timer_grafica.isActive():
             self.timer_grafica.stop()
-        
-        global parar
-        parar = True
+        if self.timer_temp_inicial.isActive():
+            self.timer_temp_inicial.stop()
+        if self.timer_tomar_fotos.isActive():
+            self.timer_tomar_fotos.stop()
+        self.buttonParar.setEnabled(False)
+        self.buttonIniciar.setEnabled(True)
 
 
     def rampa_temperatura(self, objetivo):
         global temp
-        if(lauda.get_t_set() > objetivo):
-            lauda.set_t_set(temp - 1)
-            temp = temp - 1
+        print("rampa")
+        if(float(lauda.get_t_set()) > float(objetivo)):
+            print("bajando temperatura")
+            lauda.set_t_set(temp - self.dSpinBoxTempRampa.value())
+            temp = temp - self.dSpinBoxTempRampa.value()
 
     def llevar_temperatura_inicial(self):
+        print("t_set por encima: "+ str(float(lauda.get_t_set())+0.2))
+        print("t_set por debajo: "+ str(float(lauda.get_t_set())-0.2))
         if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
+            print("comenzando rampa")
             self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
             self.timer_rampa.start(60000)
             self.timer_temp_inicial.stop()
 
     def guardar_temperaturas(self):
-        temp_bloc.append(lauda.get_t_ext())
-        temp_liquid.append(lauda.get_t_int())
-        temp_set.append(lauda.get_t_set())
+        temp_bloc.append(float(lauda.get_t_ext()))
+        temp_liquid.append(float(lauda.get_t_int()))
+        temp_set.append(float(lauda.get_t_set()))
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
         dialogo = QMessageBox()
@@ -1072,24 +1087,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_comprobacion_fotos.start(60000)
 
     def comprobar_fotos(self, datos_temp):
+        global ruta_experimento_activo
         print("comprobando temperatura imagenes")
         if(ruta_experimento_activo is None):
             ruta_experimento_activo = self.obtener_ruta_experimento()
-        if (lauda.get_t_ext() == datos_temp['tempImg']):
+        if(float(lauda.get_t_ext()) >= (float(datos_temp['tempImg'])-0.2) and float(lauda.get_t_ext()) <= (float(datos_temp['tempImg'])+0.2)):
             # Escribir los datos en el archivo CSV
-            with open(f'{ruta_experimento_activo}imagenes.csv', 'w', newline='') as archivo_csv:
+            with open(f'{ruta_experimento_activo}/imagenes.csv', 'w', newline='') as archivo_csv:
                 escritor_csv = csv.writer(archivo_csv)
                 escritor_csv.writerow(['Imagen', 'Temperatura'])
 
-            self.timer_tomar_fotos = QTimer(self)
-            self.timer_tomar_fotos.timeout.connect(self.tomar_fotos)
+            
+            self.timer_tomar_fotos.timeout.connect(lambda: self.tomar_fotos(ruta_experimento_activo))
             self.timer_tomar_fotos.start(5000)
             print("iniciado temporizador de imagenes")
             self.timer_comprobacion_fotos.stop()
 
     def tomar_fotos(self, ruta_imagenes):
         print("FOTO")
-        self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked(), self.lauda.get_t_ext())
+        self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked(), float(lauda.get_t_ext()))
 
     @pyqtSlot(np.ndarray)
 
@@ -1110,7 +1126,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             qt_img = self.convert_cv_qt(cv_img)
         
-
         # Escalar la imagen para que ocupe todo el espacio del QLabel
         qt_img = qt_img.scaled(self.labelCamara.size(), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
 

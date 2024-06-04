@@ -65,7 +65,10 @@ class VideoThread(QThread):
                     print("4")
                     cv_img = cv_img[:, width // 2:]  # Recortar la mitad derecha de la imagen
             # Guardar la imagen en la carpeta "imagenes"
-            cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)
+            try:
+                cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)
+            except Exception as e:
+                print(f"Error al guardar la imagen: {e}")
 
             # Abrir el archivo CSV y escribir el timestamp y la temperatura
             with open(os.path.join(f"{ruta_experimento}", f"imagenes.csv"), 'a', newline='') as csv_file:

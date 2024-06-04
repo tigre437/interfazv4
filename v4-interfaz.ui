@@ -107,7 +107,7 @@
                  <string/>
                 </property>
                 <property name="placeholderText">
-                 <string>-- Selecciona un filtro --</string>
+                 <string>-- Selecciona un filtro o Experimento --</string>
                 </property>
                </widget>
               </item>
@@ -1812,6 +1812,9 @@
                          <property name="minimum">
                           <number>-99</number>
                          </property>
+                         <property name="value">
+                          <number>-30</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1827,6 +1830,9 @@
                          </property>
                          <property name="minimum">
                           <double>-99.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>-30.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1860,6 +1866,9 @@
                          <property name="minimum">
                           <number>-99</number>
                          </property>
+                         <property name="value">
+                          <number>-1</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1875,6 +1884,9 @@
                          </property>
                          <property name="minimum">
                           <double>-99.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>-1.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1908,6 +1920,9 @@
                          <property name="minimum">
                           <number>-99</number>
                          </property>
+                         <property name="value">
+                          <number>1</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1923,6 +1938,9 @@
                          </property>
                          <property name="minimum">
                           <double>-99.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>1.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1956,6 +1974,9 @@
                          <property name="minimum">
                           <number>-99</number>
                          </property>
+                         <property name="value">
+                          <number>-1</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1971,6 +1992,9 @@
                          </property>
                          <property name="minimum">
                           <double>-99.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>-1.000000000000000</double>
                          </property>
                         </widget>
                        </item>
