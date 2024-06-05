@@ -743,8 +743,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def obtener_ruta_json(self, archivo):
         """Obtiene la ruta completa del archivo JSON."""
+        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
         carpeta_seleccionada = self.txtArchivos.text()
-        nombre_filtro = self.comboBoxFiltro.currentText()
+        if(self.comboBoxFiltro.currentText() == ""):
+            nombre_filtro = (f"LAB_{fecha_actual}")
+        else:
+            nombre_filtro = self.comboBoxFiltro.currentText()
         ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, archivo)
         return ruta_json
     
@@ -855,10 +859,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def obtener_ruta_experimento_json(self):
         """Obtiene la ruta completa del archivo JSON."""
-        carpeta_seleccionada = self.txtArchivos.text()
-        nombre_filtro = self.comboBoxFiltro.currentText()
         fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
         hora_actual = datetime.datetime.now().strftime("%H%M")
+        carpeta_seleccionada = self.txtArchivos.text()
+        if(self.comboBoxFiltro.currentText() == ""):
+            nombre_filtro = (f"LAB_{fecha_actual}")
+        else:
+            nombre_filtro = self.comboBoxFiltro.currentText()
+        
 
         nombre_experimento = self.obtener_nombre_experimento()
 
@@ -873,16 +881,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
     def obtener_ruta_experimento(self):
         """Obtiene la ruta completa del archivo JSON."""
+        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
+        hora_actual = datetime.datetime.now().strftime("%H%M")
         carpeta_seleccionada = self.txtArchivos.text()
-        nombre_filtro = self.comboBoxFiltro.currentText()
+        if(self.comboBoxFiltro.currentText() == ""):
+            nombre_filtro = (f"LAB_{fecha_actual}")
+        else:
+            nombre_filtro = self.comboBoxFiltro.currentText()
         placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
         if (placa == "Placa A"):
             nombre_experimento = self.txtNombrePlacaA.text()
         else:
             nombre_experimento = self.txtNombrePlacaB.text()
 
-        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
-        hora_actual = datetime.datetime.now().strftime("%H%M")
+        
 
         if (not self.checkBoxAmbasPlacas.isChecked()):
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{placa}"
@@ -987,6 +999,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.timer_temp_inicial.stop()
         if self.timer_tomar_fotos.isActive():
             self.timer_tomar_fotos.stop()
+        if self.guardar_temp.isActive():
+            self.guardar_temp.stop()
         self.buttonParar.setEnabled(False)
         self.buttonIniciar.setEnabled(True)
 
