@@ -284,17 +284,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.checkBoxAmbasPlacas.setEnabled(True)
             self.tabWidget_2.widget(1).setEnabled(True)
             
-    def buscar_carpetas_sns(self, directorio):
+    def buscar_carpetas(self, directorio, codigo):
         """Retorna una lista de carpetas que comienzan con 'SNS' dentro del directorio dado."""
         carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
-        carpetas_sns = [carpeta for carpeta in carpetas if carpeta.startswith("SNS")]
+        carpetas_sns = [carpeta for carpeta in carpetas if carpeta.startswith(codigo)]
         return carpetas_sns
-    
-    def buscar_carpetas_ugr(self, directorio):
-        """Retorna una lista de carpetas que comienzan con 'UGR' dentro del directorio dado."""
-        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
-        carpetas_ugr = [carpeta for carpeta in carpetas if carpeta.startswith("UGR")]
-        return carpetas_ugr
 
     def filechooser(self, folder = None):
         """Abre un diálogo para seleccionar una carpeta."""
@@ -308,13 +302,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             carpeta_seleccionada = self.txtArchivos.text()
 
         self.txtArchivos.setText(carpeta_seleccionada)
-        carpetas_sns = self.buscar_carpetas_sns(carpeta_seleccionada)
-        carpetas_ugr = self.buscar_carpetas_ugr(carpeta_seleccionada)
+        carpetas_sns = self.buscar_carpetas(carpeta_seleccionada, "SNS")
+        carpetas_ugr = self.buscar_carpetas(carpeta_seleccionada, "UGR")
+        carpetas_lab = self.buscar_carpetas(carpeta_seleccionada, "LAB")
         
         self.comboBoxFiltro.clear()
         self.comboBoxFiltroAn.clear()
+        self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
         if carpetas_sns:
-            self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
             for carpeta in carpetas_sns:
                 self.comboBoxFiltro.addItem(carpeta)
                 self.comboBoxFiltroAn.addItem(carpeta)
@@ -322,9 +317,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for carpeta in carpetas_ugr:
                 self.comboBoxFiltro.addItem(carpeta)
                 self.comboBoxFiltroAn.addItem(carpeta)
+        if carpetas_lab:
+            for carpeta in carpetas_lab:
+                self.comboBoxFiltro.addItem(carpeta)
+                self.comboBoxFiltroAn.addItem(carpeta)
         
-        if not carpetas_sns and not carpetas_ugr:
-            QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS' o 'UGR' dentro de la carpeta seleccionada.")
+        if not carpetas_sns and not carpetas_ugr and not carpetas_lab:
+            QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS', 'UGR' o 'LAB' dentro de la carpeta seleccionada.")
 
     def comprobar_opcion_seleccionada(self, index, combobox):
         """Comprueba la opción seleccionada en el combobox de filtros."""
