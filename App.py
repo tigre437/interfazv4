@@ -32,133 +32,130 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)  # Configura la interfaz gráfica definida en Ui_MainWindow
         global ruta_experimento_activo
-        ruta_experimento_activo = None
+        ruta_experimento_activo = None  # Variable global para almacenar la ruta del experimento activo
 
         global lauda
-        lauda = Lauda()
-        self.video_thread = VideoThread(MainWindow)
+        lauda = Lauda()  # Inicializa una instancia de Lauda
+        self.video_thread = VideoThread(MainWindow)  # Crea una instancia del hilo de video
 
-        #self.video_thread.start()
-        lauda.start()
+        #self.video_thread.start()  # Comenta la línea para no iniciar el hilo de video
+        lauda.start()  # Inicia el hilo de lauda
 
         # Graficas
-        scene = QtWidgets.QGraphicsScene()
-        ff1 = QtWidgets.QGraphicsScene()
-        ff2 = QtWidgets.QGraphicsScene()
+        scene = QtWidgets.QGraphicsScene()  # Crea una escena gráfica para graphicsView
+        ff1 = QtWidgets.QGraphicsScene()  # Crea una escena gráfica para grafica1
+        ff2 = QtWidgets.QGraphicsScene()  # Crea una escena gráfica para grafica2
 
         # Asignar el QGraphicsScene a graphicsView
         self.graphicsView.setScene(scene)
         self.grafica1.setScene(ff1)
         self.grafica2.setScene(ff2)
 
+        # Configurar las barras de desplazamiento de graphicsView para que siempre estén desactivadas
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+        # Configurar las barras de desplazamiento de grafica1 para que siempre estén desactivadas
         self.grafica1.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.grafica1.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+        # Configurar las barras de desplazamiento de grafica2 para que siempre estén desactivadas
         self.grafica2.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.grafica2.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        
 
         # Conexiones de los botones con los métodos correspondientes
-        self.buttonBuscarArchivos.clicked.connect(self.filechooser)
-        self.buttonConfiguracion.clicked.connect(self.settings)
-        self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
-        
+        self.buttonBuscarArchivos.clicked.connect(self.filechooser)  # Conectar botón "Buscar Archivos" con filechooser
+        self.buttonConfiguracion.clicked.connect(self.settings)  # Conectar botón "Configuración" con settings
+        self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")  # Añadir opción al comboBoxFiltro
 
         # Llena el combobox de cámaras disponibles
-        self.fillCameras()
-        self.list_cameras()
+        self.fillCameras()  # Llenar comboBox con cámaras disponibles
+        self.list_cameras()  # Listar cámaras disponibles
 
         # Conexiones de señales
-        
-        self.comboBoxCamara.currentIndexChanged.connect(self.update_camera_index)
-        self.checkBoxHabilitarA.stateChanged.connect(self.cambiarPlacaA)
-        self.checkBoxHabilitarB.stateChanged.connect(self.cambiarPlacaB)
+        self.comboBoxCamara.currentIndexChanged.connect(self.update_camera_index)  # Actualizar índice de cámara seleccionado
+        self.checkBoxHabilitarA.stateChanged.connect(self.cambiarPlacaA)  # Cambiar placa A
+        self.checkBoxHabilitarB.stateChanged.connect(self.cambiarPlacaB)  # Cambiar placa B
+
         global check_option_lambda
-        check_option_lambda = lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltro)
-        self.comboBoxFiltro.currentIndexChanged.connect(check_option_lambda)
-        self.buttonGuardarFiltro.clicked.connect(self.guardar_datos_filtro)
-        self.buttonCancelarFiltro.clicked.connect(self.cancelar_cambios_filtro)
-        self.buttonIniciar.clicked.connect(self.iniciar_experimento)
+        check_option_lambda = lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltro)  # Lambda para comprobar opción seleccionada en comboBoxFiltro
+        self.comboBoxFiltro.currentIndexChanged.connect(check_option_lambda)  # Conectar lambda a cambio de índice en comboBoxFiltro
 
-        self.tabWidget_2.currentChanged.connect(self.tab_changed)
-        self.checkBoxHabilitarA.stateChanged.connect(self.tab_changed)
-        self.checkBoxHabilitarB.stateChanged.connect(self.tab_changed)
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.tab_changed)
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.desactivar_placaB)
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.cambiarPlacaA)
+        self.buttonGuardarFiltro.clicked.connect(self.guardar_datos_filtro)  # Conectar botón "Guardar Filtro" con guardar_datos_filtro
+        self.buttonCancelarFiltro.clicked.connect(self.cancelar_cambios_filtro)  # Conectar botón "Cancelar Filtro" con cancelar_cambios_filtro
+        self.buttonIniciar.clicked.connect(self.iniciar_experimento)  # Conectar botón "Iniciar" con iniciar_experimento
 
-        self.buttonGuardarParamDetec.clicked.connect(self.guardar_datos_detection)
-        self.buttonCancelarParamDetec.clicked.connect(self.cancelar_cambios_detect)
+        self.tabWidget_2.currentChanged.connect(self.tab_changed)  # Conectar cambio de pestaña en tabWidget_2 con tab_changed
+        self.checkBoxHabilitarA.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxHabilitarA con tab_changed
+        self.checkBoxHabilitarB.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxHabilitarB con tab_changed
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxAmbasPlacas con tab_changed
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.desactivar_placaB)  # Conectar cambio de estado de checkBoxAmbasPlacas con desactivar_placaB
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.cambiarPlacaA)  # Conectar cambio de estado de checkBoxAmbasPlacas con cambiarPlacaA
 
-        self.buttonGuardarParamTemp.clicked.connect(self.guardar_datos_temp)
-        self.buttonCancelarParamTemp.clicked.connect(self.cancelar_cambios_temp)
+        self.buttonGuardarParamDetec.clicked.connect(self.guardar_datos_detection)  # Conectar botón "Guardar Param Detec" con guardar_datos_detection
+        self.buttonCancelarParamDetec.clicked.connect(self.cancelar_cambios_detect)  # Conectar botón "Cancelar Param Detec" con cancelar_cambios_detect
 
-        self.buttonCargar.clicked.connect(self.cargar_datos_experimento)
-        self.buttonGuardar.clicked.connect(self.guardar_datos_experimento)
+        self.buttonGuardarParamTemp.clicked.connect(self.guardar_datos_temp)  # Conectar botón "Guardar Param Temp" con guardar_datos_temp
+        self.buttonCancelarParamTemp.clicked.connect(self.cancelar_cambios_temp)  # Conectar botón "Cancelar Param Temp" con cancelar_cambios_temp
 
-        self.buttonConectarTermo.clicked.connect(self.conectarTermostato)
+        self.buttonCargar.clicked.connect(self.cargar_datos_experimento)  # Conectar botón "Cargar" con cargar_datos_experimento
+        self.buttonGuardar.clicked.connect(self.guardar_datos_experimento)  # Conectar botón "Guardar" con guardar_datos_experimento
+
+        self.buttonConectarTermo.clicked.connect(self.conectarTermostato)  # Conectar botón "Conectar Termo" con conectarTermostato
 
         # Dimensiones para mostrar la imagen
-        self.display_width = self.width() // 2
-        self.display_height = self.height() // 2
+        self.display_width = self.width() // 2  # Definir ancho de la imagen a mostrar
+        self.display_height = self.height() // 2  # Definir alto de la imagen a mostrar
 
         # Conectar Sliders con Spin box
-        self.hSliderRadioMin.valueChanged.connect(self.dSpinBoxRadioMin.setValue)
-        self.hSliderRadioMax.valueChanged.connect(self.dSpinBoxRadioMax.setValue)
-        self.hSliderUmbral.valueChanged.connect(self.dSpinBoxUmbral.setValue)
+        self.hSliderRadioMin.valueChanged.connect(self.dSpinBoxRadioMin.setValue)  # Conectar hSliderRadioMin con dSpinBoxRadioMin
+        self.hSliderRadioMax.valueChanged.connect(self.dSpinBoxRadioMax.setValue)  # Conectar hSliderRadioMax con dSpinBoxRadioMax
+        self.hSliderUmbral.valueChanged.connect(self.dSpinBoxUmbral.setValue)  # Conectar hSliderUmbral con dSpinBoxUmbral
 
-        self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)
+        self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)  # Conectar hSliderTempSet con dSpinBoxTempSet
 
         # Conectar Spin boxes con Sliders
-        self.dSpinBoxRadioMin.valueChanged.connect(self.hSliderRadioMin.setValue)
-        self.dSpinBoxRadioMax.valueChanged.connect(self.hSliderRadioMax.setValue)
-        self.dSpinBoxUmbral.valueChanged.connect(self.hSliderUmbral.setValue)
-
+        self.dSpinBoxRadioMin.valueChanged.connect(self.hSliderRadioMin.setValue)  # Conectar dSpinBoxRadioMin con hSliderRadioMin
+        self.dSpinBoxRadioMax.valueChanged.connect(self.hSliderRadioMax.setValue)  # Conectar dSpinBoxRadioMax con hSliderRadioMax
+        self.dSpinBoxUmbral.valueChanged.connect(self.hSliderUmbral.setValue)  # Conectar dSpinBoxUmbral con hSliderUmbral
 
         # Conectar Sliders con Spin box
-        self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)
-        self.hSliderTempInic.valueChanged.connect(self.dSpinBoxTempIni.setValue)
-        self.hSliderRampa.valueChanged.connect(self.dSpinBoxTempRampa.setValue)
-        self.hSliderImg.valueChanged.connect(self.dSpinBoxTempImg.setValue)
+        self.hSliderTempSet.valueChanged.connect(self.dSpinBoxTempSet.setValue)  # Conectar hSliderTempSet con dSpinBoxTempSet
+        self.hSliderTempInic.valueChanged.connect(self.dSpinBoxTempIni.setValue)  # Conectar hSliderTempInic con dSpinBoxTempIni
+        self.hSliderRampa.valueChanged.connect(self.dSpinBoxTempRampa.setValue)  # Conectar hSliderRampa con dSpinBoxTempRampa
+        self.hSliderImg.valueChanged.connect(self.dSpinBoxTempImg.setValue)  # Conectar hSliderImg con dSpinBoxTempImg
 
         # Conectar Spin boxes con Sliders
-        self.dSpinBoxTempSet.valueChanged.connect(self.hSliderTempSet.setValue)
-        self.dSpinBoxTempIni.valueChanged.connect(self.hSliderTempInic.setValue)
-        self.dSpinBoxTempRampa.valueChanged.connect(self.hSliderRampa.setValue)
-        self.dSpinBoxTempImg.valueChanged.connect(self.hSliderImg.setValue)
+        self.dSpinBoxTempSet.valueChanged.connect(self.hSliderTempSet.setValue)  # Conectar dSpinBoxTempSet con hSliderTempSet
+        self.dSpinBoxTempIni.valueChanged.connect(self.hSliderTempInic.setValue)  # Conectar dSpinBoxTempIni con hSliderTempInic
+        self.dSpinBoxTempRampa.valueChanged.connect(self.hSliderRampa.setValue)  # Conectar dSpinBoxTempRampa con hSliderRampa
+        self.dSpinBoxTempImg.valueChanged.connect(self.hSliderImg.setValue)  # Conectar dSpinBoxTempImg con hSliderImg
 
+        self.buttonRecargar.clicked.connect(lambda: self.filechooser(True))  # Conectar botón "Recargar" con filechooser(True)
 
-        self.buttonRecargar.clicked.connect(lambda: self.filechooser(True))
+        self.buttonParar.clicked.connect(self.pararExperimento)  # Conectar botón "Parar" con pararExperimento
 
+        self.listExperimentos.itemDoubleClicked.connect(self.mostrar_nombre_experimento)  # Conectar doble clic en item de listExperimentos con mostrar_nombre_experimento
+        self.sliderFotos.valueChanged.connect(self.actualizar_imagen)  # Conectar cambio de valor en sliderFotos con actualizar_imagen
 
-        self.buttonParar.clicked.connect(self.pararExperimento)
+        self.buttonRecargar.clicked.connect(lambda index: self.filechooser(self.txtArchivos.text()))  # Conectar botón "Recargar" con filechooser(txtArchivos.text())
 
-        self.listExperimentos.itemDoubleClicked.connect(self.mostrar_nombre_experimento)
-        self.sliderFotos.valueChanged.connect(self.actualizar_imagen)
+        self.grafica_temperatura(temp_bloc, temp_liquid, temp_set)  # Llamar a grafica_temperatura con parámetros
 
-        self.buttonRecargar.clicked.connect(lambda index: self.filechooser(self.txtArchivos.text()))
+        self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))  # Conectar cambio de índice en comboBoxFiltroAn con lambda que llama a comprobar_opcion_seleccionada
 
-        self.grafica_temperatura(temp_bloc, temp_liquid, temp_set)   
+        self.buttonAnalizar.clicked.connect(self.analizar_imagenes)  # Conectar botón "Analizar" con analizar_imagenes
 
+        self.timer_volver = QTimer(self)  # Crear un QTimer para el boton de volver a temperatura inicial
+        self.timer_volver.timeout.connect(self.ir_temp_inic)  # Conectar timeout del timer_volver con ir_temp_inic
+        self.buttonIrTempInic.clicked.connect(self.timer_volver.start(5000))  # Conectar botón "Ir Temp Inic" con start del timer_volver (5 segundos)
 
-        self.comboBoxFiltroAn.currentIndexChanged.connect(lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltroAn))    
-        
+        self.timer_rampa = QTimer(self)  # Crear un QTimer para rampa
+        self.timer_temp_inicial = QTimer(self)  # Crear un QTimer para temperatura inicial
+        self.timer_grafica = QTimer(self)  # Crear un QTimer para gráfica
+        self.guardar_temp = QTimer(self)  # Crear un QTimer para guardar temperatura
+        self.timer_tomar_fotos = QTimer(self)  # Crear un QTimer para tomar fotos
 
-        self.buttonAnalizar.clicked.connect(self.analizar_imagenes)
-
-        self.timer_volver = QTimer(self)
-        self.timer_volver.timeout.connect(self.ir_temp_inic)
-        self.buttonIrTempInic.clicked.connect(self.timer_volver.start(5000))
-
-
-        self.timer_rampa = QTimer(self)
-        self.timer_temp_inicial = QTimer(self)
-        self.timer_grafica = QTimer(self)
-        self.guardar_temp = QTimer(self)
-        self.timer_tomar_fotos = QTimer(self)
 
 
     ######################  DETECCION  ##########################
@@ -231,103 +228,106 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     
 
     def desactivar_placaB(self):
+        """Desactiva los campos relacionados con la placa B si el checkbox 'Ambas Placas' está marcado, de lo contrario, los habilita."""
         if self.checkBoxAmbasPlacas.isChecked():
-            self.checkBoxHabilitarB.setChecked(False)
-            self.checkBoxHabilitarB.setEnabled(False)
-            self.copiarDatosA()
+            self.checkBoxHabilitarB.setChecked(False)  # Desmarca el checkbox de habilitar placa B
+            self.checkBoxHabilitarB.setEnabled(False)  # Deshabilita el checkbox de habilitar placa B
+            self.copiarDatosA()  # Copia los datos de la placa A a la placa B
         else:
-            self.checkBoxHabilitarB.setEnabled(True)
+            self.checkBoxHabilitarB.setEnabled(True)  # Habilita el checkbox de habilitar placa B
 
     def copiarDatosA(self):
-        self.txtNombrePlacaB.setText(self.txtNombrePlacaA.text())
-        self.txtVDropPlacaB.setText(self.txtVDropPlacaA.text())
-        self.txtVWashPlacaB.setText(self.txtVWashPlacaA.text())
-        self.txtFactorDilucPlacaB.setText(self.txtFactorDilucPlacaA.text())
-        self.txtFraccFiltroPlacaB.setText(self.txtFraccFiltroPlacaA.text())
-        self.txtVelEnfriamientoPlacaB.setText(self.txtVelEnfriamientoPlacaA.text())
-        self.txtObservPlacaB.setPlainText(self.txtObservPlacaA.toPlainText())
-
+        """Copia los datos de los campos de la placa A a los campos correspondientes de la placa B."""
+        self.txtNombrePlacaB.setText(self.txtNombrePlacaA.text())  # Copia el nombre de la placa A a la placa B
+        self.txtVDropPlacaB.setText(self.txtVDropPlacaA.text())  # Copia el valor de 'VDrop' de la placa A a la placa B
+        self.txtVWashPlacaB.setText(self.txtVWashPlacaA.text())  # Copia el valor de 'VWash' de la placa A a la placa B
+        self.txtFactorDilucPlacaB.setText(self.txtFactorDilucPlacaA.text())  # Copia el factor de dilución de la placa A a la placa B
+        self.txtFraccFiltroPlacaB.setText(self.txtFraccFiltroPlacaA.text())  # Copia la fracción de filtro de la placa A a la placa B
+        self.txtVelEnfriamientoPlacaB.setText(self.txtVelEnfriamientoPlacaA.text())  # Copia la velocidad de enfriamiento de la placa A a la placa B
+        self.txtObservPlacaB.setPlainText(self.txtObservPlacaA.toPlainText())  # Copia las observaciones de la placa A a la placa B
 
     def cambiarPlacaA(self):
-        """Habilita o deshabilita campos según el estado del checkbox."""
+        """Habilita o deshabilita los campos relacionados con la placa A según el estado del checkbox."""
         if self.checkBoxHabilitarA.isChecked():
-            self.txtNombrePlacaA.setEnabled(True)
-            self.txtVDropPlacaA.setEnabled(True)
-            self.txtVWashPlacaA.setEnabled(True)
-            self.txtFactorDilucPlacaA.setEnabled(True)
-            self.txtFraccFiltroPlacaA.setEnabled(True)
-            self.txtVelEnfriamientoPlacaA.setEnabled(True)
-            self.txtObservPlacaA.setEnabled(True)
-            self.checkBoxAmbasPlacas.setEnabled(False)
-            self.tabWidget_2.widget(2).setEnabled(False)
+            self.txtNombrePlacaA.setEnabled(True)  # Habilita el campo de texto del nombre de la placa A
+            self.txtVDropPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa A
+            self.txtVWashPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa A
+            self.txtFactorDilucPlacaA.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa A
+            self.txtFraccFiltroPlacaA.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa A
+            self.txtVelEnfriamientoPlacaA.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa A
+            self.txtObservPlacaA.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa A
+            self.checkBoxAmbasPlacas.setEnabled(False)  # Deshabilita el checkbox de 'Ambas Placas'
+            self.tabWidget_2.widget(2).setEnabled(False)  # Deshabilita la pestaña 2 del tabWidget
 
         elif self.checkBoxAmbasPlacas.isChecked():
-            self.txtNombrePlacaA.setEnabled(True)
-            self.txtVDropPlacaA.setEnabled(True)
-            self.txtVWashPlacaA.setEnabled(True)
-            self.txtFactorDilucPlacaA.setEnabled(True)
-            self.txtFraccFiltroPlacaA.setEnabled(True)
-            self.txtVelEnfriamientoPlacaA.setEnabled(True)
-            self.txtObservPlacaA.setEnabled(True)
-            self.checkBoxHabilitarA.setEnabled(False)
-            self.tabWidget_2.widget(2).setEnabled(False)
+            self.txtNombrePlacaA.setEnabled(True)  # Habilita el campo de texto del nombre de la placa A
+            self.txtVDropPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa A
+            self.txtVWashPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa A
+            self.txtFactorDilucPlacaA.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa A
+            self.txtFraccFiltroPlacaA.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa A
+            self.txtVelEnfriamientoPlacaA.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa A
+            self.txtObservPlacaA.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa A
+            self.checkBoxHabilitarA.setEnabled(False)  # Deshabilita el checkbox de habilitar placa A
+            self.tabWidget_2.widget(2).setEnabled(False)  # Deshabilita la pestaña 2 del tabWidget
         else:
-            self.txtNombrePlacaA.setEnabled(False)
-            self.txtVDropPlacaA.setEnabled(False)
-            self.txtVWashPlacaA.setEnabled(False)
-            self.txtFactorDilucPlacaA.setEnabled(False)
-            self.txtFraccFiltroPlacaA.setEnabled(False)
-            self.txtVelEnfriamientoPlacaA.setEnabled(False)
-            self.txtObservPlacaA.setEnabled(False)
-            self.checkBoxAmbasPlacas.setEnabled(True)
-            self.checkBoxHabilitarA.setEnabled(True)
-            self.tabWidget_2.widget(2).setEnabled(True)
+            self.txtNombrePlacaA.setEnabled(False)  # Deshabilita el campo de texto del nombre de la placa A
+            self.txtVDropPlacaA.setEnabled(False)  # Deshabilita el campo de texto de 'VDrop' de la placa A
+            self.txtVWashPlacaA.setEnabled(False)  # Deshabilita el campo de texto de 'VWash' de la placa A
+            self.txtFactorDilucPlacaA.setEnabled(False)  # Deshabilita el campo de texto del factor de dilución de la placa A
+            self.txtFraccFiltroPlacaA.setEnabled(False)  # Deshabilita el campo de texto de la fracción de filtro de la placa A
+            self.txtVelEnfriamientoPlacaA.setEnabled(False)  # Deshabilita el campo de texto de la velocidad de enfriamiento de la placa A
+            self.txtObservPlacaA.setEnabled(False)  # Deshabilita el campo de texto de las observaciones de la placa A
+            self.checkBoxAmbasPlacas.setEnabled(True)  # Habilita el checkbox de 'Ambas Placas'
+            self.checkBoxHabilitarA.setEnabled(True)  # Habilita el checkbox de habilitar placa A
+            self.tabWidget_2.widget(2).setEnabled(True)  # Habilita la pestaña 2 del tabWidget
 
     def cambiarPlacaB(self):
-        """Habilita o deshabilita campos según el estado del checkbox."""
+        """Habilita o deshabilita los campos relacionados con la placa B según el estado del checkbox."""
         if self.checkBoxHabilitarB.isChecked():
-            self.txtNombrePlacaB.setEnabled(True)
-            self.txtVDropPlacaB.setEnabled(True)
-            self.txtVWashPlacaB.setEnabled(True)
-            self.txtFactorDilucPlacaB.setEnabled(True)
-            self.txtFraccFiltroPlacaB.setEnabled(True)
-            self.txtVelEnfriamientoPlacaB.setEnabled(True)
-            self.txtObservPlacaB.setEnabled(True)
-            self.checkBoxAmbasPlacas.setEnabled(False)
-            self.tabWidget_2.widget(1).setEnabled(False)
+            self.txtNombrePlacaB.setEnabled(True)  # Habilita el campo de texto del nombre de la placa B
+            self.txtVDropPlacaB.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa B
+            self.txtVWashPlacaB.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa B
+            self.txtFactorDilucPlacaB.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa B
+            self.txtFraccFiltroPlacaB.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa B
+            self.txtVelEnfriamientoPlacaB.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa B
+            self.txtObservPlacaB.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa B
+            self.checkBoxAmbasPlacas.setEnabled(False)  # Deshabilita el checkbox de 'Ambas Placas'
+            self.tabWidget_2.widget(1).setEnabled(False)  # Deshabilita la pestaña 1 del tabWidget
         else:
-            self.txtNombrePlacaB.setEnabled(False)
-            self.txtVDropPlacaB.setEnabled(False)
-            self.txtVWashPlacaB.setEnabled(False)
-            self.txtFactorDilucPlacaB.setEnabled(False)
-            self.txtFraccFiltroPlacaB.setEnabled(False)
-            self.txtVelEnfriamientoPlacaB.setEnabled(False)
-            self.txtObservPlacaB.setEnabled(False)
-            self.checkBoxAmbasPlacas.setEnabled(True)
-            self.tabWidget_2.widget(1).setEnabled(True)
+            self.txtNombrePlacaB.setEnabled(False)  # Deshabilita el campo de texto del nombre de la placa B
+            self.txtVDropPlacaB.setEnabled(False)  # Deshabilita el campo de texto de 'VDrop' de la placa B
+            self.txtVWashPlacaB.setEnabled(False)  # Deshabilita el campo de texto de 'VWash' de la placa B
+            self.txtFactorDilucPlacaB.setEnabled(False)  # Deshabilita el campo de texto del factor de dilución de la placa B
+            self.txtFraccFiltroPlacaB.setEnabled(False)  # Deshabilita el campo de texto de la fracción de filtro de la placa B
+            self.txtVelEnfriamientoPlacaB.setEnabled(False)  # Deshabilita el campo de texto de la velocidad de enfriamiento de la placa B
+            self.txtObservPlacaB.setEnabled(False)  # Deshabilita el campo de texto de las observaciones de la placa B
+            self.checkBoxAmbasPlacas.setEnabled(True)  # Habilita el checkbox de 'Ambas Placas'
+            self.tabWidget_2.widget(1).setEnabled(True)  # Habilita la pestaña 1 del tabWidget
+
             
     def buscar_carpetas(self, directorio, codigo):
         """Retorna una lista de carpetas que comienzan con 'SNS' dentro del directorio dado."""
-        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]
-        carpetas_sns = [carpeta for carpeta in carpetas if carpeta.startswith(codigo)]
-        return carpetas_sns
+        carpetas = [nombre for nombre in os.listdir(directorio) if os.path.isdir(os.path.join(directorio, nombre))]  # Obtiene una lista de nombres de carpetas dentro del directorio
+        carpetas_sns = [carpeta for carpeta in carpetas if carpeta.startswith(codigo)]  # Filtra las carpetas que comienzan con el código dado
+        return carpetas_sns  # Retorna la lista de carpetas filtradas
 
-    def filechooser(self, folder = None):
+    def filechooser(self, folder=None):
         """Abre un diálogo para seleccionar una carpeta."""
-        if not folder:
-            selected_folder = QFileDialog.getExistingDirectory(self)
+        if not folder:  # Si no se proporciona una carpeta específica
+            selected_folder = QFileDialog.getExistingDirectory(self)  # Abre un diálogo para seleccionar una carpeta
             if selected_folder:
                 carpeta_seleccionada = selected_folder
             else:
-                carpeta_seleccionada = self.txtArchivos.text()  # Usar el valor anterior si se cancela
+                carpeta_seleccionada = self.txtArchivos.text()  # Usa el valor anterior si se cancela
         else:
-            carpeta_seleccionada = self.txtArchivos.text()
+            carpeta_seleccionada = self.txtArchivos.text()  # Usa la carpeta proporcionada
 
-        self.txtArchivos.setText(carpeta_seleccionada)
-        carpetas_sns = self.buscar_carpetas(carpeta_seleccionada, "SNS")
-        carpetas_ugr = self.buscar_carpetas(carpeta_seleccionada, "UGR")
-        carpetas_lab = self.buscar_carpetas(carpeta_seleccionada, "LAB")
+        self.txtArchivos.setText(carpeta_seleccionada)  # Actualiza el campo de texto con la carpeta seleccionada
+        carpetas_sns = self.buscar_carpetas(carpeta_seleccionada, "SNS")  # Busca las carpetas que comienzan con "SNS"
+        carpetas_ugr = self.buscar_carpetas(carpeta_seleccionada, "UGR")  # Busca las carpetas que comienzan con "UGR"
+        carpetas_lab = self.buscar_carpetas(carpeta_seleccionada, "LAB")  # Busca las carpetas que comienzan con "LAB"
         
+        # Limpia y llena los combobox con las carpetas encontradas
         self.comboBoxFiltro.clear()
         self.comboBoxFiltroAn.clear()
         self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
@@ -344,25 +344,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.comboBoxFiltro.addItem(carpeta)
                 self.comboBoxFiltroAn.addItem(carpeta)
         
+        # Muestra una advertencia si no se encuentran carpetas de filtros específicas
         if not carpetas_sns and not carpetas_ugr and not carpetas_lab:
             QMessageBox.warning(self, "Alerta", "No se encontraron carpetas de filtros 'SNS', 'UGR' o 'LAB' dentro de la carpeta seleccionada.")
 
     def comprobar_opcion_seleccionada(self, index, combobox):
         """Comprueba la opción seleccionada en el combobox de filtros."""
-        if index == -1:
-            pass
-        elif index == 0 and combobox == self.comboBoxFiltro:  
+        if index == -1:  # Si no se ha seleccionado ninguna opción
+            pass  # No hace nada
+        elif index == 0 and combobox == self.comboBoxFiltro:  # Si se selecciona la opción de crear un nuevo filtro en el combobox de filtros
             if(self.txtArchivos.text() == None or self.txtArchivos.text() == ""):
-                QMessageBox.warning(self, "Alerta", "Seleccione una carpeta para guardar los filtros antes de continuar.")
-                self.comboBoxFiltro.currentIndexChanged.disconnect(check_option_lambda)
-                self.comboBoxFiltro.setCurrentIndex(-1)
-                self.comboBoxFiltro.currentIndexChanged.connect(check_option_lambda)
-                self.filechooser()
-            nombre_carpeta = self.obtener_nombre_carpeta()
+                QMessageBox.warning(self, "Alerta", "Seleccione una carpeta para guardar los filtros antes de continuar.")  # Muestra una advertencia si no se ha seleccionado una carpeta
+                self.comboBoxFiltro.currentIndexChanged.disconnect(check_option_lambda)  # Desconecta la señal para evitar recursión
+                self.comboBoxFiltro.setCurrentIndex(-1)  # Reinicia el índice seleccionado
+                self.comboBoxFiltro.currentIndexChanged.connect(check_option_lambda)  # Vuelve a conectar la señal
+                self.filechooser()  # Abre el diálogo para seleccionar una carpeta
+            nombre_carpeta = self.obtener_nombre_carpeta()  # Obtiene el nombre de la carpeta para el nuevo filtro
             if nombre_carpeta:
-                self.crear_carpeta(nombre_carpeta)
-        else:
-            if combobox == self.comboBoxFiltro:  # Solo rellenar datos si el combobox es comboBoxFiltro
+                self.crear_carpeta(nombre_carpeta)  # Crea la carpeta con el nombre proporcionado
+        else:  # Si se selecciona una opción existente en el combobox de filtros
+            if combobox == self.comboBoxFiltro:  # Si el combobox es el de filtros
+                # Lee los datos de los archivos JSON correspondientes y los muestra en los campos
                 datos_filtro = self.leer_json_filtro(self.txtArchivos.text() + "/" + combobox.currentText() + "/" + "filter.json")
                 if (datos_filtro != None):
                     self.rellenar_datos_filtro(datos_filtro)
@@ -376,7 +378,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.rellenar_datos_temp(datos_temp)
             else:
                 self.cargar_lista_experimentos(self.txtArchivos.text() + "/" + combobox.currentText())
-
 
     def cancelar_cambios_filtro(self):
         """Cancela la edición del filtro seleccionado."""
@@ -401,78 +402,92 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         dialogo = QDialog(self)
         dialogo.setWindowTitle("Nombre del filtro")
         
-        etiqueta = QLabel("Ingrese el nombre del filtros:")
-        campo_texto = QLineEdit()
-        boton_aceptar = QPushButton("Aceptar")
-        boton_cancelar = QPushButton("Cancelar")
+        etiqueta = QLabel("Ingrese el nombre del filtros:")  # Etiqueta para indicar al usuario qué debe ingresar
+        campo_texto = QLineEdit()  # Campo de texto para que el usuario ingrese el nombre
+        boton_aceptar = QPushButton("Aceptar")  # Botón para aceptar la entrada
+        boton_cancelar = QPushButton("Cancelar")  # Botón para cancelar la entrada
 
-        layout = QVBoxLayout()
-        layout.addWidget(etiqueta)
-        layout.addWidget(campo_texto)
-        layout.addWidget(boton_aceptar)
-        layout.addWidget(boton_cancelar)
+        layout = QVBoxLayout()  # Layout para organizar los elementos
+        layout.addWidget(etiqueta)  # Agregar la etiqueta al layout
+        layout.addWidget(campo_texto)   # Agregar el campo de texto al layout
+        layout.addWidget(boton_aceptar)  # Agregar el botón de aceptar al layout
+        layout.addWidget(boton_cancelar)  # Agregar el botón de cancelar al layout
 
-        dialogo.setLayout(layout)
+        dialogo.setLayout(layout)  # Configurar el layout para que se vea bien en el diálogo
 
-        def aceptar():
-            nombre_carpeta = campo_texto.text()
-            if nombre_carpeta:
-                dialogo.accept()
+        def aceptar():  # Función para aceptar la entrada
+            nombre_carpeta = campo_texto.text()  # Obtener el nombre de la carpeta
+            if nombre_carpeta:  # Si el nombre de la carpeta no es vacío
+                dialogo.accept()    # Aceptar la entrada
 
-        boton_aceptar.clicked.connect(aceptar)
-        boton_cancelar.clicked.connect(dialogo.reject)
+        boton_aceptar.clicked.connect(aceptar)  # Conectar el botón de aceptar a la función aceptar
+        boton_cancelar.clicked.connect(dialogo.reject)  # Conectar el botón de cancelar a la función cancelar
 
-        if dialogo.exec() == QDialog.DialogCode.Accepted:
-            return campo_texto.text()
-        else:
-            return None
+        if dialogo.exec() == QDialog.DialogCode.Accepted:  # Si se acepta la entrada
+            return campo_texto.text()  # Devuelve el nombre de la carpeta
+        else:  # Si se cancela la entrada
+            return None  # Devuelve None
 
     def crear_carpeta(self, nombre_carpeta):
         """Crea una carpeta para el nuevo filtro."""
-        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
-        nombre_carpeta_sns = f"SNS_{fecha_actual}_{nombre_carpeta}"
-        directorio_seleccionado = self.txtArchivos.text()
+        fecha_actual = datetime.datetime.now().strftime("%Y%m%d")  # Obtiene la fecha actual en formato YYYYMMDD
+        nombre_carpeta_sns = f"SNS_{fecha_actual}_{nombre_carpeta}"  # Construye el nombre de la carpeta con el prefijo 'SNS', la fecha actual y el nombre proporcionado
+        directorio_seleccionado = self.txtArchivos.text()  # Obtiene el directorio seleccionado desde el campo de texto en la interfaz
         
-        if os.path.isdir(directorio_seleccionado):
-            ruta_carpeta_sns = os.path.join(directorio_seleccionado, nombre_carpeta_sns)
-            os.makedirs(ruta_carpeta_sns)
-            print(f"Carpeta '{nombre_carpeta_sns}' creada exitosamente en '{directorio_seleccionado}'.")
-            carpetas_sns = self.buscar_carpetas_sns(directorio_seleccionado)
-            carpetas_ugr = self.buscar_carpetas_ugr(directorio_seleccionado)
+        if os.path.isdir(directorio_seleccionado):  # Verifica si el directorio seleccionado es válido
+            ruta_carpeta_sns = os.path.join(directorio_seleccionado, nombre_carpeta_sns)  # Obtiene la ruta completa para la nueva carpeta
+            os.makedirs(ruta_carpeta_sns)  # Crea la carpeta en la ruta especificada
+            print(f"Carpeta '{nombre_carpeta_sns}' creada exitosamente en '{directorio_seleccionado}'.")  # Imprime un mensaje de éxito en la consola
+            carpetas_sns = self.buscar_carpetas_sns(directorio_seleccionado)  # Busca todas las carpetas 'SNS' en el directorio
+            carpetas_ugr = self.buscar_carpetas_ugr(directorio_seleccionado)  # Busca todas las carpetas 'UGR' en el directorio
 
+            # Desconecta la señal currentIndexChanged para evitar recursión
             self.comboBoxFiltro.currentIndexChanged.disconnect(check_option_lambda)
-            self.comboBoxFiltro.clear()
-            self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")
+            self.comboBoxFiltro.clear()  # Limpia el combobox de filtros
+            self.comboBoxFiltro.addItem("Crear un filtro nuevo ...")  # Añade la opción para crear un filtro nuevo
             for carpeta in carpetas_sns:
-                self.comboBoxFiltro.addItem(carpeta)
+                self.comboBoxFiltro.addItem(carpeta)  # Añade las carpetas 'SNS' encontradas al combobox
             for carpeta in carpetas_ugr:
-                self.comboBoxFiltro.addItem(carpeta)
-            self.comboBoxFiltro.setCurrentText(nombre_carpeta_sns)
+                self.comboBoxFiltro.addItem(carpeta)  # Añade las carpetas 'UGR' encontradas al combobox
+            self.comboBoxFiltro.setCurrentText(nombre_carpeta_sns)  # Establece el nuevo filtro creado como el filtro actualmente seleccionado
 
-            # Crear el archivo filter.json
+            # Crea el archivo filter.json para el nuevo filtro
             self.crear_json_filtro(ruta_carpeta_sns)
             
-            # Cargar los datos del filtro recién creado
-            self.comprobar_opcion_seleccionada(1, self.comboBoxFiltro)  # Índice 1 para seleccionar el nuevo filtro
+            # Carga los datos del filtro recién creado en la interfaz
+            self.comprobar_opcion_seleccionada(1, self.comboBoxFiltro)  # Índice 1 para seleccionar el nuevo filtro en el combobox
 
-            # Vuelve a conectar la señal currentIndexChanged
+            # Vuelve a conectar la señal currentIndexChanged para que el combobox funcione correctamente
             self.comboBoxFiltro.currentIndexChanged.connect(check_option_lambda)
             
-        else:
-            print("Error: El directorio seleccionado no es válido.")
+        else:  # Si el directorio seleccionado no es válido
+            print("Error: El directorio seleccionado no es válido.")  # Imprime un mensaje de error en la consola
+
 
 
     ######################### TERMOSTATO ################################
 
     def conectarTermostato(self):
-        url = self.txtIpTermos.text()
-        result = lauda.open(url)
-        if result is None:
-            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")
-        elif "Could not open" in result:
-            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")
-        else:
-            QMessageBox.information(self, "Éxito", "Conexión exitosa con el termostato")
+
+        # Modifique el archivo lauda.py para que devuelva un valor si se conecta correctamente, cosa que no hace de serie
+        #
+        #def start(self):
+        #result = self._send_command('START')
+        #if result == '0K':
+        #    self.standby = 0
+        #    time.sleep(15)
+        #return result
+        #
+        # Esa es la funcion MODIFICADA que devuelve un valor si se conecta correctamente
+
+        url = self.txtIpTermos.text()  # Obtiene la URL del termostato desde el campo de texto en la interfaz
+        result = lauda.open(url)  # Intenta abrir una conexión con el termostato utilizando la URL proporcionada
+        if result is None:  # Si no se obtiene ninguna respuesta
+            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")  # Muestra un mensaje de error de conexión
+        elif "Could not open" in result:  # Si se recibe un mensaje de error en la respuesta
+            QMessageBox.critical(self, "Error de conexion", "No se pudo conectar con el termostato, vuelva a intentarlo en unos segundos")  # Muestra un mensaje de error de conexión
+        else:  # Si se establece la conexión correctamente
+            QMessageBox.information(self, "Éxito", "Conexión exitosa con el termostato")  # Muestra un mensaje de éxito de conexión
 
 
     ######################### JSON #################################
@@ -516,9 +531,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rellenar_datos_filtro(self, datos):
         """Asigna los valores correspondientes a cada campo de texto."""
-
         if self.tabWidget.tabText(self.tabWidget.currentIndex()) == "Experimento":
-
+            # Asigna los valores a los campos de texto en la interfaz gráfica
             self.txtNombreFiltro.setText(datos['label'])
             self.txtTempStorage.setText(str(datos['storage_temperature']))
             self.txtIdMuestreador.setText(datos['sampler_id'])
@@ -527,16 +541,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtHoraInicio.setDateTime(QtCore.QDateTime.fromString(datos['start_time'], "yyyy-MM-dd hh:mm"))
             self.txtHoraFin.setDateTime(QtCore.QDateTime.fromString(datos['end_time'], "yyyy-MM-dd hh:mm"))
             
-            # Observaciones puede ser nulo, así que verificamos antes de asignar
+            # Verifica si hay observaciones y las asigna al campo de texto correspondiente
             if datos['observations'] is not None:
                 self.txaObservFiltro.setPlainText(datos['observations'])
             else:
-                self.txaObservFiltro.clear()  # Limpiamos el campo si las observaciones son nulas
+                self.txaObservFiltro.clear()  # Limpia el campo si las observaciones son nulas
 
     def crear_json_filtro(self, ruta_carpeta_sns):
         """Crea el archivo filter.json."""
         ruta_filter_json = os.path.join(ruta_carpeta_sns, 'filter.json')
         with open(ruta_filter_json, 'w') as file:
+            # Escribe los datos por defecto en el archivo JSON
             json.dump({
                 "label": "Sin etiqueta",
                 "storage_temperature": "0",
@@ -546,8 +561,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "start_time": "2000-01-01 00:00",
                 "end_time": "2000-01-01 00:00",
                 "observations": "Sin observaciones"
-            }
-            , file) 
+            }, file) 
+
 
     def guardar_datos_filtro(self):
         """Guarda los datos del filtro en un archivo JSON."""
@@ -610,6 +625,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             'max_radius': data.get('max_radius', 11)
         }
 
+
     def rellenar_datos_detection(self, datos):
         """Asigna los valores correspondientes a cada campo de texto de detección."""
         self.hSliderUmbral.setValue(datos['threshold'])
@@ -618,6 +634,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.dSpinBoxRadioMin.setValue(datos['min_radius'])
         self.hSliderRadioMax.setValue(datos['max_radius'])
         self.dSpinBoxRadioMax.setValue(datos['max_radius'])
+
 
     def leer_json_detection(self, archivo_json):
         """Lee un archivo JSON de detección y devuelve los datos relevantes."""
@@ -644,7 +661,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             'threshold': data.get('threshold', 240),
             'min_radius': data.get('min_radius', 9),
             'max_radius': data.get('max_radius', 11)
-        } 
+        }
+
 
     def guardar_datos_detection(self):
         """Guarda los datos de detección en un archivo JSON."""
@@ -766,15 +784,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def obtener_ruta_json(self, archivo):
         """Obtiene la ruta completa del archivo JSON."""
+        # Obtener la fecha actual en formato YYYYMMDD
         fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
+        
+        # Obtener la carpeta seleccionada desde el campo de texto
         carpeta_seleccionada = self.txtArchivos.text()
-        if(self.comboBoxFiltro.currentText() == ""):
-            nombre_filtro = (f"LAB_{fecha_actual}")
+        
+        # Verificar si se ha seleccionado un filtro en el comboBoxFiltro
+        if self.comboBoxFiltro.currentText() == "":
+            # Si no se ha seleccionado un filtro, usar un nombre de filtro predeterminado
+            nombre_filtro = f"LAB_{fecha_actual}"
         else:
+            # Si se ha seleccionado un filtro, usar el nombre del filtro seleccionado
             nombre_filtro = self.comboBoxFiltro.currentText()
+        
+        # Componer la ruta completa del archivo JSON
         ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, archivo)
         return ruta_json
-    
+   
 
 
     ######################## GRAFICA ########################
@@ -869,60 +896,74 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ######################### EXPERIMENTO #################################
 
     def obtener_nombre_experimento(self):
+        # Obtiene el nombre del experimento según la placa seleccionada en el tabWidget
         placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
-        if (placa == "Placa A"):
+        if placa == "Placa A":
             nombre_experimento = self.txtNombrePlacaA.text()
-            return nombre_experimento
         else:
             nombre_experimento = self.txtNombrePlacaB.text()
-            return nombre_experimento
-        
+        return nombre_experimento
+
     def obtener_ruta_experimento_json(self):
-        """Obtiene la ruta completa del archivo JSON."""
+        """Obtiene la ruta completa del archivo JSON del experimento."""
+        # Obtener la fecha y hora actual en formatos YYYYMMDD y HHMM respectivamente
         fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
         hora_actual = datetime.datetime.now().strftime("%H%M")
+        
+        # Obtener la carpeta seleccionada desde el campo de texto
         carpeta_seleccionada = self.txtArchivos.text()
-        if(self.comboBoxFiltro.currentText() == ""):
-            nombre_filtro = (f"LAB_{fecha_actual}")
+        
+        # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
+        if self.comboBoxFiltro.currentText() == "":
+            nombre_filtro = f"LAB_{fecha_actual}"
         else:
             nombre_filtro = self.comboBoxFiltro.currentText()
         
-
+        # Obtener el nombre del experimento
         nombre_experimento = self.obtener_nombre_experimento()
-
-        nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())}"
-        if (not self.checkBoxAmbasPlacas.isChecked()):
+        
+        # Componer el nombre del experimento con fecha y hora
+        if not self.checkBoxAmbasPlacas.isChecked():
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())}"
         else:
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_Placa_AB"
         
+        # Construir la ruta completa del archivo JSON del experimento
         ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha, "experimento.json")
         return ruta_json
-        
+
     def obtener_ruta_experimento(self):
-        """Obtiene la ruta completa del archivo JSON."""
+        """Obtiene la ruta completa del directorio del experimento."""
+        # Obtener la fecha y hora actual en formatos YYYYMMDD y HHMM respectivamente
         fecha_actual = datetime.datetime.now().strftime("%Y%m%d")
         hora_actual = datetime.datetime.now().strftime("%H%M")
+        
+        # Obtener la carpeta seleccionada desde el campo de texto
         carpeta_seleccionada = self.txtArchivos.text()
-        if(self.comboBoxFiltro.currentText() == ""):
-            nombre_filtro = (f"LAB_{fecha_actual}")
+        
+        # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
+        if self.comboBoxFiltro.currentText() == "":
+            nombre_filtro = f"LAB_{fecha_actual}"
         else:
             nombre_filtro = self.comboBoxFiltro.currentText()
+        
+        # Obtener el nombre del experimento según la placa seleccionada en el tabWidget
         placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
-        if (placa == "Placa A"):
+        if placa == "Placa A":
             nombre_experimento = self.txtNombrePlacaA.text()
         else:
             nombre_experimento = self.txtNombrePlacaB.text()
-
         
-
-        if (not self.checkBoxAmbasPlacas.isChecked()):
+        # Componer el nombre del experimento con fecha y hora
+        if not self.checkBoxAmbasPlacas.isChecked():
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{placa}"
         else:
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_Placa_AB"
         
+        # Construir la ruta completa del directorio del experimento
         ruta_experimento = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha)
         return ruta_experimento
+
 
     def iniciar_experimento(self):
         # Configurar temperatura inicial en el equipo Lauda
@@ -1033,40 +1074,43 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonParar.setEnabled(False)
         self.buttonIniciar.setEnabled(True)
 
-
     def rampa_temperatura(self, objetivo):
+        # Función para ajustar la temperatura gradualmente hacia el objetivo
         global temp
-        if(float(lauda.get_t_set()) > float(objetivo)):
+        if float(lauda.get_t_set()) > float(objetivo):
             lauda.set_t_set(temp - self.dSpinBoxTempRampa.value())
             temp = temp - self.dSpinBoxTempRampa.value()
         else:
             self.pararExperimento()
 
     def ir_temp_inic(self):
+        # Función para ir a la temperatura inicial establecida
         if float(lauda.get_t_set()) != float(self.dSpinBoxTempIni.value()):
             lauda.set_t_set(self.dSpinBoxTempIni.value())
             lauda.start()
-        ##comprobar si la temperatura exterior es +-0.2 de la temperatura set
+        # Comprobar si la temperatura exterior está dentro del rango aceptable
         if float(lauda.get_t_ext()) > float(self.dSpinBoxTempIni.value()) + 0.2 or float(lauda.get_t_ext()) < float(self.dSpinBoxTempIni.value()) - 0.2:
             lauda.stop()
 
     def llevar_temperatura_inicial(self):
-        if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
+        # Función para esperar a que la temperatura se estabilice cerca de la temperatura inicial
+        if float(lauda.get_t_ext()) >= (float(lauda.get_t_set()) - 0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set()) + 0.2):
             self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
             self.timer_rampa.start(60000)
             self.timer_temp_inicial.stop()
 
     def guardar_temperaturas(self):
+        # Función para guardar las temperaturas en un archivo CSV
         temp_bloc.append(float(lauda.get_t_ext()))
         temp_liquid.append(float(lauda.get_t_int()))
         temp_set.append(float(lauda.get_t_set()))
-        ##no quiero que se sobreescriban las temperaturas de la imagen
+        # Evitar sobreescribir las temperaturas de la imagen
         with open(f'{ruta_experimento_activo}/temperaturas.csv', 'a', newline='') as archivo_csv:
             escritor_csv = csv.writer(archivo_csv, delimiter=',')
             escritor_csv.writerow([float(lauda.get_t_ext()), float(lauda.get_t_int()), float(lauda.get_t_set())])
-        
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
+        # Función para mostrar un diálogo de confirmación
         dialogo = QMessageBox()
         dialogo.setWindowTitle(titulo)
         dialogo.setText(mensaje)
@@ -1077,9 +1121,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         return respuesta == QMessageBox.StandardButton.Yes
 
     def tab_changed(self):
-
+        # Función para manejar el cambio de pestañas en el tabWidget_2
         index = self.tabWidget_2.currentIndex()
-        
         if index is not None:
             if index == 0:
                 self.buttonIniciar.setEnabled(False)
@@ -1090,9 +1133,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 self.buttonIniciar.setEnabled(False)
 
+
     ####################### CAMARA ##############################
-    
     def update_camera_index(self, index):
+        # Actualiza el índice de la cámara para mostrar la vista previa en el widget
         if self.video_thread and self.video_thread.isRunning():
             self.video_thread.stop()  # Detener el hilo existente
             self.video_thread.finished.connect(self.video_thread.deleteLater)  # Eliminar el objeto del hilo después de que termine
@@ -1107,27 +1151,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         cameras = []
         filter_graph = FilterGraph()
         devices = filter_graph.get_input_devices()
- 
-        for index in enumerate(devices):
-            cameras.append(index)
+
+        for index, device_name in enumerate(devices):
+            cameras.append((index, device_name))  # Agregar el índice y el nombre del dispositivo
 
         return cameras
 
     def fillCameras(self):
         """Llena el combobox con las cámaras disponibles."""
-        available_cameras = self.get_available_cameras()
-        for camera_index, camera_name in available_cameras.items():
+        available_cameras = self.list_cameras()
+        for camera_index, camera_name in available_cameras:
             self.comboBoxCamara.addItem(camera_name)
 
     def settings(self):
+        # Abre la configuración de la cámara
         self.video_thread.settings()
 
     def save(self, datos_temp):
+        # Guarda las imágenes capturadas con la cámara
         global ruta_experimento_activo
-        if(ruta_experimento_activo is None):
+        if ruta_experimento_activo is None:
             ruta_experimento_activo = self.obtener_ruta_experimento()
         ruta_imagenes = os.path.join(ruta_experimento_activo, "imagenes")
-        
+
         # Crear la carpeta "imagenes" si no existe
         if not os.path.exists(ruta_imagenes):
             os.makedirs(ruta_imagenes)
@@ -1139,25 +1185,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_comprobacion_fotos.start(60000)
 
     def comprobar_fotos(self, datos_temp):
+        # Comprueba si la temperatura exterior está dentro del rango y toma fotos si es así
         global ruta_experimento_activo
-        if(ruta_experimento_activo is None):
+        if ruta_experimento_activo is None:
             ruta_experimento_activo = self.obtener_ruta_experimento()
-        if(float(lauda.get_t_ext()) >= (float(datos_temp['tempImg'])-0.2) and float(lauda.get_t_ext()) <= (float(datos_temp['tempImg'])+0.2)):
+        if float(lauda.get_t_ext()) >= (float(datos_temp['tempImg']) - 0.2) and float(lauda.get_t_ext()) <= (float(datos_temp['tempImg']) + 0.2):
             # Escribir los datos en el archivo CSV
             with open(f'{ruta_experimento_activo}/imagenes.csv', 'w', newline='') as archivo_csv:
                 escritor_csv = csv.writer(archivo_csv)
                 escritor_csv.writerow(['Imagen', 'Temperatura'])
 
-            
             self.timer_tomar_fotos.timeout.connect(lambda: self.tomar_fotos(ruta_experimento_activo))
             self.timer_tomar_fotos.start(5000)
             self.timer_comprobacion_fotos.stop()
 
     def tomar_fotos(self, ruta_imagenes):
+        # Captura imágenes con la cámara
         self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked(), float(lauda.get_t_ext()))
 
     @pyqtSlot(np.ndarray)
-
     def get_available_cameras(self):
         """Obtiene las cámaras disponibles utilizando pygrabber."""
         devices = FilterGraph().get_input_devices()
@@ -1170,7 +1216,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """Actualiza el QLabel con una nueva imagen de OpenCV"""
         cv_img = cv2.rotate(cv_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-        if(self.checkBoxPruebas.isChecked()):
+        if self.checkBoxPruebas.isChecked():
             qt_img = self.convert_cv_qt(self.detectar_circulos(cv_img))
         else:
             qt_img = self.convert_cv_qt(cv_img)
@@ -1195,11 +1241,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         p = convert_to_Qt_format.scaled(self.display_width, self.display_height, Qt.AspectRatioMode.KeepAspectRatio)
         return QPixmap.fromImage(p)
 
-######################## ANALISIS #################################
 
     def leer_json_experimento(self):
         """Lee un archivo JSON de temperatura y devuelve los datos relevantes."""
-
         archivo_json = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/" + "experimento.json"
         try:
             with open(archivo_json, 'r') as f:
@@ -1226,7 +1270,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         v_wash = data.get('v_wash', 0.00)
         dil_factor = data.get('dil_factor', 0.00)
         filter_fraction = data.get('filter_fraction', 0.00)
-        sampling_rate = data.get('sampling_rate', 0.00)
         cooling_rate = data.get('cooling_rate', 0.00)
         observations_exp = data.get('observations_exp', '')
 
@@ -1246,14 +1289,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             'v_wash': v_wash,
             'dil_factor': dil_factor,
             'filter_fraction': filter_fraction,
-            'sampling_rate': sampling_rate,
             'cooling_rate': cooling_rate,
             'observations_exp': observations_exp
         }
-    
+
     def cargar_datos_experimento(self):
+        """Carga los datos del experimento en los campos correspondientes."""
         datos = self.leer_json_experimento()
-        """Asigna los valores correspondientes a cada campo de texto."""
         self.txtNombreExperimento.setText(self.lblExperimentoSeleccionado.text())
         self.txtNombreFiltroAn.setText(datos['label'])
         self.txtTempAlmacenamiento.setText(str(datos['storage_temperature']))
@@ -1262,49 +1304,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.txtVolAire.setText(str(datos['air_volumen']))
         self.txtHoraInicio_2.setDateTime(QtCore.QDateTime.fromString(datos['start_time'], "yyyy-MM-dd hh:mm"))
         self.txtHoraFin_2.setDateTime(QtCore.QDateTime.fromString(datos['end_time'], "yyyy-MM-dd hh:mm"))
-
-        # Observaciones puede ser nulo, así que verificamos antes de asignar
         if datos['observations'] is not None:
             self.txtObserv.setPlainText(datos['observations'])
         else:
-            self.txtObserv.clear()  # Limpiamos el campo si las observaciones son nulas
-
+            self.txtObserv.clear()
         self.txtVDrop.setText(str(datos.get('v_drop', '')))
         self.txtVWash.setText(str(datos.get('v_wash', '')))
         self.txtFactorDiluc.setText(str(datos.get('dil_factor', '')))
         self.txtFraccionFiltro.setText(str(datos.get('filter_fraction', '')))
-        self.txtTasaMuestreo.setText(str(datos.get('sampling_rate', '')))
         self.txtVelEnfriamiento.setText(str(datos.get('cooling_rate', '')))
         self.txtObservExpe.setPlainText(str(datos.get('observations_exp', '')))
-
         self.cargar_imagenes()
 
     def cargar_lista_experimentos(self, ruta):
+        """Carga la lista de experimentos disponibles."""
         self.listExperimentos.clear()
         carpetas_con_experiment_json = []
-
-        # Verificar que la ruta exista y sea un directorio
         if os.path.exists(ruta) and os.path.isdir(ruta):
-            # Recorrer cada elemento dentro de la ruta
             for elemento in os.listdir(ruta):
-                # Verificar si el elemento es un directorio
                 if os.path.isdir(os.path.join(ruta, elemento)):
-                    # Verificar si dentro del directorio hay un archivo llamado "experiment.json"
                     if 'experimento.json' in os.listdir(os.path.join(ruta, elemento)):
                         carpetas_con_experiment_json.append(elemento)
-
         for carpeta in carpetas_con_experiment_json:
-            item = QListWidgetItem(carpeta)  # Corrección aquí
+            item = QListWidgetItem(carpeta)
             self.listExperimentos.addItem(item)
-
         return carpetas_con_experiment_json
-    
+
     def mostrar_nombre_experimento(self, item):
+        """Muestra el nombre del experimento seleccionado."""
         self.lblExperimentoSeleccionado.setText(item.text())
 
     def guardar_datos_experimento(self):
         """Guarda los datos del experimento en un archivo JSON."""
-        # Obtener los datos de los campos del experimento
         nombre_experimento = self.lblExperimentoSeleccionado.text()
         nombre_filtro = self.txtNombreFiltroAn.text()
         temp_almacenamiento = float(self.txtTempAlmacenamiento.text())
@@ -1318,11 +1349,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         v_wash = float(self.txtVWash.text())
         factor_diluc = float(self.txtFactorDiluc.text())
         fraccion_filtro = float(self.txtFraccionFiltro.text())
-        tasa_muestreo = float(self.txtTasaMuestreo.text())
         vel_enfriamiento = float(self.txtVelEnfriamiento.text())
         observaciones_exp = self.txtObservExpe.toPlainText()
-
-        # Crear un diccionario con los datos del experimento
         datos_experimento = {
             'label': nombre_filtro,
             'storage_temperature': temp_almacenamiento,
@@ -1336,19 +1364,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             'v_wash': v_wash,
             'dil_factor': factor_diluc,
             'filter_fraction': fraccion_filtro,
-            'sampling_rate': tasa_muestreo,
             'cooling_rate': vel_enfriamiento,
             'observations_exp': observaciones_exp
         }
-
         archivo_json = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/" + "experimento.json"
-
-        # Guardar los datos del experimento en el archivo JSON
         with open(archivo_json, 'w') as file:
             json.dump(datos_experimento, file)
-
         QMessageBox.information(self, "Guardado", "Los datos del experimento se han actualizado correctamente.", QMessageBox.StandardButton.Ok)
-            
+
 
     def cargar_imagenes(self):
         # Ruta de la carpeta que contiene las imágenes
@@ -1399,7 +1422,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MostrarPlacaA.setPixmap(lista_imagenes_analisis[0].get_pixmap())
         self.lblImagenA.setText(lista_imagenes_analisis[0].get_nombre())
 
-    
+        
+        # Método para actualizar la imagen en un QLabel según el índice seleccionado por un QSlider
     def actualizar_imagen(self):
         # Obtener el índice seleccionado por el slider
         indice_imagen = self.sliderFotos.value()
@@ -1408,19 +1432,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblImagenA.setText(lista_imagenes_analisis[indice_imagen].get_nombre())
         self.lblTempA.setText(str(lista_imagenes_analisis[indice_imagen].get_temp()))
 
+    # Método para analizar imágenes y graficar la fracción congelada
     def analizar_imagenes(self):
+        # Obtener la carpeta del experimento
         carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text()
+        # Obtener los datos del experimento
         datos_experimento = self.leer_json_experimento()
         threshold = datos_experimento['threshold']
         radio_min = datos_experimento['min_radius']
         radio_max = datos_experimento['max_radius']
-        print(threshold)
+        # Detectar círculos y obtener datos para graficar
         ffa, ffb, tw = detect_circles(carpeta_experimento, threshold, 0.99, radio_min, radio_max)
         self.grafica_frozen_fraction(tw, ffa)
 
 ####################### OBJETO FOTO ###########################
 
 class Imagen:
+    # Clase para representar una imagen con su nombre y temperatura
     def __init__(self, nombre, pixmap, temp):
         self._nombre = nombre
         self._pixmap = pixmap
@@ -1443,7 +1471,6 @@ class Imagen:
 
     def set_temp(self, temp):
         self._temp = temp
-
 
 # Creación de la aplicación y ventana principal
 app = QtWidgets.QApplication([])
