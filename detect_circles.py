@@ -1,8 +1,8 @@
 ###
-#Nombre del archivo: app.py
-#Autor: Elena Bazo González, Editado por David Serrano Henares
-#Repositorio GitHub: https://github.com/tigre437/interfazv4
-#Funcion: Este archivo contiene la logica de deteccion del analisis final.
+# Nombre del archivo: app.py
+# Autor: Elena Bazo González, Editado por David Serrano Henares
+# Repositorio GitHub: https://github.com/tigre437/interfazv4
+# Funcion: Este archivo contiene la logica de deteccion del analisis final.
 ###
 
 import os
@@ -195,5 +195,7 @@ def detect_circles(experiment, threshold, threshold_b, radio_min, radio_max):
     plt.xlabel('t$_{wells}$ (ºC)')
     plt.ylabel('Frozen fraction')
     plt.savefig(experiment + '/Frozen fraction B.jpg')
+
+    # IMPORTANTE QUE SI SE VUELVE A MODIFICAR ESTE ARCHIVO TIENES QUE DEVOLVER LO MISMO QUE YO PARA QUE NO DE ERRORES
 
     return frozen_fraction_A, frozen_fraction_B, t_wells[2:]
