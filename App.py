@@ -155,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.timer_volver = QTimer(self)  # Crear un QTimer para el boton de volver a temperatura inicial
         self.timer_volver.timeout.connect(self.ir_temp_inic)  # Conectar timeout del timer_volver con ir_temp_inic
-        self.buttonIrTempInic.clicked.connect(self.timer_volver.start(5000))  # Conectar botón "Ir Temp Inic" con start del timer_volver (5 segundos)
+        self.buttonIrTempInic.clicked.connect(lambda: self.timer_volver.start(5000))  # Conectar botón "Ir Temp Inic" con start del timer_volver (5 segundos)
 
         self.timer_rampa = QTimer(self)  # Crear un QTimer para rampa
         self.timer_temp_inicial = QTimer(self)  # Crear un QTimer para temperatura inicial
@@ -800,7 +800,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Verificar si se ha seleccionado un filtro en el comboBoxFiltro
         if self.comboBoxFiltro.currentText() == "":
             # Si no se ha seleccionado un filtro, usar un nombre de filtro predeterminado
-            nombre_filtro = f"LAB_{fecha_actual}"
+            nombre_filtro = ""
         else:
             # Si se ha seleccionado un filtro, usar el nombre del filtro seleccionado
             nombre_filtro = self.comboBoxFiltro.currentText()
@@ -922,7 +922,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
         if self.comboBoxFiltro.currentText() == "":
-            nombre_filtro = f"LAB_{fecha_actual}"
+            nombre_filtro = ""
         else:
             nombre_filtro = self.comboBoxFiltro.currentText()
         
@@ -933,10 +933,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.checkBoxAmbasPlacas.isChecked():
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())}"
         else:
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_Placa_AB"
+            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_AB"
         
         # Construir la ruta completa del archivo JSON del experimento
-        ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha, "experimento.json")
+        if(nombre_filtro == ""):
+            ruta_json = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}", "experimento.json")
+        else:
+            ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha, "experimento.json")
         return ruta_json
 
     def obtener_ruta_experimento(self):
@@ -950,7 +953,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
         if self.comboBoxFiltro.currentText() == "":
-            nombre_filtro = f"LAB_{fecha_actual}"
+            nombre_filtro = ""
         else:
             nombre_filtro = self.comboBoxFiltro.currentText()
         
@@ -965,10 +968,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.checkBoxAmbasPlacas.isChecked():
             nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{placa}"
         else:
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_Placa_AB"
+            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_AB"
         
         # Construir la ruta completa del directorio del experimento
-        ruta_experimento = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha)
+        if(nombre_filtro == ""):
+            ruta_experimento = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}")
+        else:
+            ruta_experimento = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha)
         return ruta_experimento
 
 
@@ -1018,6 +1024,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Verificar y crear la carpeta del experimento si no existe
         if not os.path.exists(ruta_carpeta_experimento):
             os.makedirs(ruta_carpeta_experimento)
+        print(ruta_carpeta_experimento)
 
         # Establecer la ruta de la carpeta del experimento como la ruta activa
         global ruta_experimento_activo
@@ -1025,6 +1032,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Obtener la ruta del archivo JSON del experimento
         ruta_json = self.obtener_ruta_experimento_json()
+        print(ruta_json)
 
         # Verificar y eliminar el archivo JSON si ya existe
         if os.path.exists(ruta_json):
