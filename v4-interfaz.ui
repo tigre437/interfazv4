@@ -91,7 +91,7 @@
              </size>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="usesScrollButtons">
              <bool>true</bool>
@@ -587,21 +587,21 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_40">
+                  <widget class="QLabel" name="label_102">
                    <property name="minimumSize">
                     <size>
-                     <width>30</width>
+                     <width>50</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>10</width>
+                     <width>50</width>
                      <height>16777215</height>
                     </size>
                    </property>
                    <property name="text">
-                    <string>Litros</string>
+                    <string>mililitros</string>
                    </property>
                   </widget>
                  </item>
@@ -647,21 +647,21 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_41">
+                  <widget class="QLabel" name="label_101">
                    <property name="minimumSize">
                     <size>
-                     <width>30</width>
+                     <width>50</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>10</width>
+                     <width>50</width>
                      <height>16777215</height>
                     </size>
                    </property>
                    <property name="text">
-                    <string>Litros</string>
+                    <string>mililitros</string>
                    </property>
                   </widget>
                  </item>
@@ -702,7 +702,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -743,67 +743,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QFrame" name="frame_36">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_48">
-                 <item>
-                  <widget class="QLabel" name="label_37">
-                   <property name="text">
-                    <string>Tasa muestreo: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="txtTasaMuestreoPlacaA">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>0.0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_43">
-                   <property name="minimumSize">
-                    <size>
-                     <width>55</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>10</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Segundos</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -844,7 +784,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -1011,18 +951,18 @@
                   <widget class="QLabel" name="label_94">
                    <property name="minimumSize">
                     <size>
-                     <width>30</width>
+                     <width>50</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>10</width>
+                     <width>50</width>
                      <height>16777215</height>
                     </size>
                    </property>
                    <property name="text">
-                    <string>Litros</string>
+                    <string>mililitros</string>
                    </property>
                   </widget>
                  </item>
@@ -1071,18 +1011,18 @@
                   <widget class="QLabel" name="label_100">
                    <property name="minimumSize">
                     <size>
-                     <width>30</width>
+                     <width>50</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>10</width>
+                     <width>50</width>
                      <height>16777215</height>
                     </size>
                    </property>
                    <property name="text">
-                    <string>Litros</string>
+                    <string>mililitros</string>
                    </property>
                   </widget>
                  </item>
@@ -1123,7 +1063,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -1164,67 +1104,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QFrame" name="frame_81">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_90">
-                 <item>
-                  <widget class="QLabel" name="label_101">
-                   <property name="text">
-                    <string>Tasa muestreo: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="txtTasaMuestreoPlacaB">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>0.0</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLabel" name="label_102">
-                   <property name="minimumSize">
-                    <size>
-                     <width>55</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>10</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Segundos</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -1265,7 +1145,7 @@
                     <bool>false</bool>
                    </property>
                    <property name="text">
-                    <string>0.0</string>
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -1559,6 +1439,9 @@
                          <property name="singleStep">
                           <number>1</number>
                          </property>
+                         <property name="value">
+                          <number>8</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1571,6 +1454,9 @@
                            <width>50</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="value">
+                          <double>8.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1601,6 +1487,9 @@
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="value">
+                          <number>12</number>
+                         </property>
                          <property name="orientation">
                           <enum>Qt::Horizontal</enum>
                          </property>
@@ -1613,6 +1502,9 @@
                            <width>50</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="value">
+                          <double>12.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1734,7 +1626,11 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLineEdit" name="txtIpTermos"/>
+                  <widget class="QLineEdit" name="txtIpTermos">
+                   <property name="text">
+                    <string>169.254.87.54:54321</string>
+                   </property>
+                  </widget>
                  </item>
                  <item>
                   <widget class="QPushButton" name="buttonConectarTermo">
@@ -1759,6 +1655,13 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
+                  <widget class="QPushButton" name="buttonIrTempInic">
+                   <property name="text">
+                    <string>Ir a temperatura Inicial</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QFrame" name="frame_13">
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
@@ -1782,63 +1685,6 @@
                     <property name="bottomMargin">
                      <number>0</number>
                     </property>
-                    <item>
-                     <widget class="QFrame" name="frame_14">
-                      <property name="frameShape">
-                       <enum>QFrame::StyledPanel</enum>
-                      </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Raised</enum>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_24">
-                       <item>
-                        <widget class="QLabel" name="label_9">
-                         <property name="toolTip">
-                          <string comment="PRUEBAA" extracomment="PRUEBAA"/>
-                         </property>
-                         <property name="text">
-                          <string>Temp. Obj. :</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QSlider" name="hSliderTempSet">
-                         <property name="maximumSize">
-                          <size>
-                           <width>130</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="minimum">
-                          <number>-99</number>
-                         </property>
-                         <property name="value">
-                          <number>-30</number>
-                         </property>
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet">
-                         <property name="maximumSize">
-                          <size>
-                           <width>50</width>
-                           <height>16777215</height>
-                          </size>
-                         </property>
-                         <property name="minimum">
-                          <double>-99.000000000000000</double>
-                         </property>
-                         <property name="value">
-                          <double>-30.000000000000000</double>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
                     <item>
                      <widget class="QFrame" name="frame_15">
                       <property name="frameShape">
@@ -1894,6 +1740,63 @@
                      </widget>
                     </item>
                     <item>
+                     <widget class="QFrame" name="frame_14">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_24">
+                       <item>
+                        <widget class="QLabel" name="label_9">
+                         <property name="toolTip">
+                          <string comment="PRUEBAA" extracomment="PRUEBAA"/>
+                         </property>
+                         <property name="text">
+                          <string>Temp. Final :</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QSlider" name="hSliderTempSet">
+                         <property name="maximumSize">
+                          <size>
+                           <width>130</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <number>-99</number>
+                         </property>
+                         <property name="value">
+                          <number>-30</number>
+                         </property>
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QDoubleSpinBox" name="dSpinBoxTempSet">
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="minimum">
+                          <double>-99.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>-30.000000000000000</double>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QFrame" name="frame_16">
                       <property name="frameShape">
                        <enum>QFrame::StyledPanel</enum>
@@ -1918,7 +1821,10 @@
                           </size>
                          </property>
                          <property name="minimum">
-                          <number>-99</number>
+                          <number>0</number>
+                         </property>
+                         <property name="maximum">
+                          <number>20</number>
                          </property>
                          <property name="value">
                           <number>1</number>

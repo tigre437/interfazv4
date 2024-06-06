@@ -149,6 +149,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonAnalizar.clicked.connect(self.analizar_imagenes)
 
+        self.timer_volver = QTimer(self)
+        self.timer_volver.timeout.connect(self.ir_temp_inic)
+        self.buttonIrTempInic.clicked.connect(self.timer_volver.start(5000))
+
 
         self.timer_rampa = QTimer(self)
         self.timer_temp_inicial = QTimer(self)
@@ -183,19 +187,43 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if len(approx) >= 5:
                     if cv2.isContourConvex(approx):
                         (cx, cy), radius = cv2.minEnclosingCircle(cnt)
-                        if radius >= self.dSpinBoxRadioMin.value() and radius <= self.dSpinBoxRadioMax.value() and cy > 50:
+                        if radius >= self.dSpinBoxRadioMin.value() and radius <= self.dSpinBoxRadioMax.value():
                             circle_list.append([cx, cy, radius])
 
-            # Dibujar los círculos detectados en la imagen
-            for idx, circle in enumerate(circle_list, start=1):
+            # Convertir la lista de círculos a un array NumPy
+            circles = np.array(circle_list)
+
+            # Dibujar todos los círculos detectados en la imagen
+            for idx, circle in enumerate(circles, start=1):
                 cv2.circle(cv_img, (int(circle[0]), int(circle[1])), int(circle[2]), (0, 255, 0), 2)
                 cv2.putText(cv_img, str(idx), (int(circle[0]), int(circle[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2, cv2.LINE_AA)
+
+            # Dividir los círculos en dos listas de 96 si hay suficientes
+            if len(circles) >= 192:
+                # Ordenar los círculos por la coordenada Y
+                circles = circles[circles[:, 1].argsort()]
+
+                # Dividir los círculos en dos listas de 96 cada una
+                circles_pcr1 = circles[:96]
+                circles_pcr2 = circles[96:192]
+
+                # Ordenar dentro de cada grupo de 96 por la coordenada X
+                circles_pcr1 = circles_pcr1[np.argsort(circles_pcr1[:, 0])]
+                circles_pcr2 = circles_pcr2[np.argsort(circles_pcr2[:, 0])]
+
+                # Dibujar los círculos detectados en la imagen con los índices
+                for idx, circle in enumerate(circles_pcr1, start=1):
+                    cv2.putText(cv_img, str(idx), (int(circle[0]), int(circle[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2, cv2.LINE_AA)
+
+                for idx, circle in enumerate(circles_pcr2, start=97):
+                    cv2.putText(cv_img, str(idx), (int(circle[0]), int(circle[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2, cv2.LINE_AA)
 
             return cv_img
 
         else:
             print("Error al capturar la imagen. No se detectarán círculos.")
             return None
+
 
 
 
@@ -216,7 +244,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.txtVWashPlacaB.setText(self.txtVWashPlacaA.text())
         self.txtFactorDilucPlacaB.setText(self.txtFactorDilucPlacaA.text())
         self.txtFraccFiltroPlacaB.setText(self.txtFraccFiltroPlacaA.text())
-        self.txtTasaMuestreoPlacaB.setText(self.txtTasaMuestreoPlacaA.text())
         self.txtVelEnfriamientoPlacaB.setText(self.txtVelEnfriamientoPlacaA.text())
         self.txtObservPlacaB.setPlainText(self.txtObservPlacaA.toPlainText())
 
@@ -229,7 +256,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtVWashPlacaA.setEnabled(True)
             self.txtFactorDilucPlacaA.setEnabled(True)
             self.txtFraccFiltroPlacaA.setEnabled(True)
-            self.txtTasaMuestreoPlacaA.setEnabled(True)
             self.txtVelEnfriamientoPlacaA.setEnabled(True)
             self.txtObservPlacaA.setEnabled(True)
             self.checkBoxAmbasPlacas.setEnabled(False)
@@ -241,7 +267,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtVWashPlacaA.setEnabled(True)
             self.txtFactorDilucPlacaA.setEnabled(True)
             self.txtFraccFiltroPlacaA.setEnabled(True)
-            self.txtTasaMuestreoPlacaA.setEnabled(True)
             self.txtVelEnfriamientoPlacaA.setEnabled(True)
             self.txtObservPlacaA.setEnabled(True)
             self.checkBoxHabilitarA.setEnabled(False)
@@ -252,7 +277,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtVWashPlacaA.setEnabled(False)
             self.txtFactorDilucPlacaA.setEnabled(False)
             self.txtFraccFiltroPlacaA.setEnabled(False)
-            self.txtTasaMuestreoPlacaA.setEnabled(False)
             self.txtVelEnfriamientoPlacaA.setEnabled(False)
             self.txtObservPlacaA.setEnabled(False)
             self.checkBoxAmbasPlacas.setEnabled(True)
@@ -267,7 +291,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtVWashPlacaB.setEnabled(True)
             self.txtFactorDilucPlacaB.setEnabled(True)
             self.txtFraccFiltroPlacaB.setEnabled(True)
-            self.txtTasaMuestreoPlacaB.setEnabled(True)
             self.txtVelEnfriamientoPlacaB.setEnabled(True)
             self.txtObservPlacaB.setEnabled(True)
             self.checkBoxAmbasPlacas.setEnabled(False)
@@ -278,7 +301,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.txtVWashPlacaB.setEnabled(False)
             self.txtFactorDilucPlacaB.setEnabled(False)
             self.txtFraccFiltroPlacaB.setEnabled(False)
-            self.txtTasaMuestreoPlacaB.setEnabled(False)
             self.txtVelEnfriamientoPlacaB.setEnabled(False)
             self.txtObservPlacaB.setEnabled(False)
             self.checkBoxAmbasPlacas.setEnabled(True)
@@ -352,6 +374,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 datos_temp = self.leer_json_temp(self.txtArchivos.text() + "/" + combobox.currentText() + "/" + "temp.json")
                 if (datos_temp != None):
                     self.rellenar_datos_temp(datos_temp)
+            else:
+                self.cargar_lista_experimentos(self.txtArchivos.text() + "/" + combobox.currentText())
 
 
     def cancelar_cambios_filtro(self):
@@ -766,10 +790,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.plot_widget.clear()
 
         tiempo_transcurrido = np.arange(len(temperatura_bloque)) * 5 / 60  # 5 segundos por punto de datos, convertido a minutos
-        print("Tiempo transcurrido:", tiempo_transcurrido)
-        print("Temperatura del bloque:", temperatura_bloque)
-        print("Temperatura del líquido:", temperatura_liquido)
-        print("Temperatura de consigna:", temperatura_consigna)
 
         # Actualizar los datos de la gráfica
         self.plot_widget.plot(tiempo_transcurrido, temperatura_bloque, clear=True, pen=pg.mkPen(color='r'), name='Temperatura Bloque')  # Línea roja para la temperatura del bloque
@@ -786,11 +806,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.plot_widget.getAxis('left').setTextPen('w')  # Color de los números en el eje y
 
         # Agregar etiquetas a los ejes x e y
-        self.plot_widget.setLabel('bottom', text='timestamp (s)', color='w')  # Etiqueta del eje x
-        self.plot_widget.setLabel('left', text='temperature (ºC)', color='w')  # Etiqueta del eje y
+        self.plot_widget.setLabel('bottom', text='Tiempo transcurrido (min)', color='w')  # Etiqueta del eje x
+        self.plot_widget.setLabel('left', text='Temperatura (ºC)', color='w')  # Etiqueta del eje y
 
         # Mostrar la leyenda
         self.plot_widget.addLegend()
+
 
         # Si no hay un QGraphicsProxyWidget creado, crear uno nuevo
         if not hasattr(self, 'proxy'):
@@ -910,6 +931,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         lauda.set_t_set(self.dSpinBoxTempIni.value())
         lauda.start()
 
+        global temp_bloc
+        global temp_liquid
+        global temp_set
+        temp_bloc = [0]
+        temp_liquid = [0]
+        temp_set = [0]
+
         # Leer datos del filtro, detección y temperatura desde archivos JSON
         datos_filtro = self.leer_json_filtro(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "filter.json"))
         datos_detection = self.leer_json_detection(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "detection.json"))
@@ -923,7 +951,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "v_wash": float(self.txtVWashPlacaA.text()),
                 "dil_factor": float(self.txtFactorDilucPlacaA.text()),
                 "filter_fraction": float(self.txtFraccFiltroPlacaA.text()),
-                "sampling_rate": float(self.txtTasaMuestreoPlacaA.text()),
                 "cooling_rate": float(self.txtVelEnfriamientoPlacaA.text()),
                 "observations_exp": self.txtObservPlacaA.toPlainText()
             }
@@ -933,7 +960,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "v_wash": float(self.txtVWashPlacaB.text()),
                 "dil_factor": float(self.txtFactorDilucPlacaB.text()),
                 "filter_fraction": float(self.txtFraccFiltroPlacaB.text()),
-                "sampling_rate": float(self.txtTasaMuestreoPlacaB.text()),
                 "cooling_rate": float(self.txtVelEnfriamientoPlacaB.text()),
                 "observations_exp": self.txtObservPlacaB.toPlainText()
             }
@@ -979,6 +1005,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
         self.timer_temp_inicial.start(60000)
 
+        with open(f'{ruta_experimento_activo}/temperaturas.csv', 'w', newline='') as archivo_csv:
+            escritor_csv = csv.writer(archivo_csv)
+            escritor_csv.writerow(['t_ext', 't_int', 't_set'])
+
         self.guardar_temp.timeout.connect(self.guardar_temperaturas)
         self.guardar_temp.start(5000)
 
@@ -1006,17 +1036,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def rampa_temperatura(self, objetivo):
         global temp
-        print("rampa")
         if(float(lauda.get_t_set()) > float(objetivo)):
-            print("bajando temperatura")
             lauda.set_t_set(temp - self.dSpinBoxTempRampa.value())
             temp = temp - self.dSpinBoxTempRampa.value()
+        else:
+            self.pararExperimento()
+
+    def ir_temp_inic(self):
+        if float(lauda.get_t_set()) != float(self.dSpinBoxTempIni.value()):
+            lauda.set_t_set(self.dSpinBoxTempIni.value())
+            lauda.start()
+        ##comprobar si la temperatura exterior es +-0.2 de la temperatura set
+        if float(lauda.get_t_ext()) > float(self.dSpinBoxTempIni.value()) + 0.2 or float(lauda.get_t_ext()) < float(self.dSpinBoxTempIni.value()) - 0.2:
+            lauda.stop()
 
     def llevar_temperatura_inicial(self):
-        print("t_set por encima: "+ str(float(lauda.get_t_set())+0.2))
-        print("t_set por debajo: "+ str(float(lauda.get_t_set())-0.2))
         if(float(lauda.get_t_ext()) >= (float(lauda.get_t_set())-0.2) and float(lauda.get_t_ext()) <= (float(lauda.get_t_set())+0.2)):
-            print("comenzando rampa")
             self.timer_rampa.timeout.connect(lambda: self.rampa_temperatura(self.dSpinBoxTempSet.text()))
             self.timer_rampa.start(60000)
             self.timer_temp_inicial.stop()
@@ -1025,6 +1060,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         temp_bloc.append(float(lauda.get_t_ext()))
         temp_liquid.append(float(lauda.get_t_int()))
         temp_set.append(float(lauda.get_t_set()))
+        ##no quiero que se sobreescriban las temperaturas de la imagen
+        with open(f'{ruta_experimento_activo}/temperaturas.csv', 'a', newline='') as archivo_csv:
+            escritor_csv = csv.writer(archivo_csv, delimiter=',')
+            escritor_csv.writerow([float(lauda.get_t_ext()), float(lauda.get_t_int()), float(lauda.get_t_set())])
+        
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
         dialogo = QMessageBox()
@@ -1096,12 +1136,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(datos_temp))
 
         # Iniciar QTimer para que se ejecute cada minuto (60,000 milisegundos)
-        print("Se inicia la comprobacion de fotos")
         self.timer_comprobacion_fotos.start(60000)
 
     def comprobar_fotos(self, datos_temp):
         global ruta_experimento_activo
-        print("comprobando temperatura imagenes")
         if(ruta_experimento_activo is None):
             ruta_experimento_activo = self.obtener_ruta_experimento()
         if(float(lauda.get_t_ext()) >= (float(datos_temp['tempImg'])-0.2) and float(lauda.get_t_ext()) <= (float(datos_temp['tempImg'])+0.2)):
@@ -1113,11 +1151,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
             self.timer_tomar_fotos.timeout.connect(lambda: self.tomar_fotos(ruta_experimento_activo))
             self.timer_tomar_fotos.start(5000)
-            print("iniciado temporizador de imagenes")
             self.timer_comprobacion_fotos.stop()
 
     def tomar_fotos(self, ruta_imagenes):
-        print("FOTO")
         self.video_thread.save(ruta_imagenes, self.tabWidget_2.tabText(self.tabWidget_2.currentIndex()), self.checkBoxAmbasPlacas.isChecked(), float(lauda.get_t_ext()))
 
     @pyqtSlot(np.ndarray)
@@ -1317,7 +1353,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def cargar_imagenes(self):
         # Ruta de la carpeta que contiene las imágenes
         carpeta_imagenes = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/imagenes"
-
+        carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text()
         # Lista para almacenar las imágenes ordenadas como QPixmap
         global lista_imagenes_analisis
         lista_imagenes_analisis = []
@@ -1332,7 +1368,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         imagenes.sort()
 
         # Abrir el archivo CSV
-        with open('imagenes.csv', newline='') as csvfile:
+        with open(f"{carpeta_experimento}/imagenes.csv", newline='') as csvfile:
             reader = csv.reader(csvfile)
             datos_csv = list(reader)
 
@@ -1345,7 +1381,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             pixmap = QPixmap(ruta_imagen)
             
             # Aplica cualquier transformación necesaria
-            pixmap = pixmap.transformed(QTransform().rotate(90))
+            pixmap = pixmap.transformed(QTransform().rotate(-90))
             factor_ajuste = min(self.MostrarPlacaA.width() / pixmap.width(), self.MostrarPlacaA.height() / pixmap.height())
             pixmap = pixmap.scaled(pixmap.width() * factor_ajuste, pixmap.height() * factor_ajuste, Qt.AspectRatioMode.KeepAspectRatio)
             
@@ -1362,9 +1398,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.MostrarPlacaA.setPixmap(lista_imagenes_analisis[0].get_pixmap())
         self.lblImagenA.setText(lista_imagenes_analisis[0].get_nombre())
-        self.lblTempA.setText(lista_imagenes_analisis[0].get_temp())
-        print("Dimensiones de la imagen:", pixmap.size().width(), "x", pixmap.size().height())
-        print("Dimensiones del QLabel:", self.MostrarPlacaA.width(), "x", self.MostrarPlacaA.height())
 
     
     def actualizar_imagen(self):
@@ -1376,7 +1409,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblTempA.setText(str(lista_imagenes_analisis[indice_imagen].get_temp()))
 
     def analizar_imagenes(self):
-        ffa, ffb, tw = detect_circles("240416_144741_A_UGR240415 B_UGR240415_1_10", 205, 0.99)
+        carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text()
+        datos_experimento = self.leer_json_experimento()
+        threshold = datos_experimento['threshold']
+        radio_min = datos_experimento['min_radius']
+        radio_max = datos_experimento['max_radius']
+        print(threshold)
+        ffa, ffb, tw = detect_circles(carpeta_experimento, threshold, 0.99, radio_min, radio_max)
         self.grafica_frozen_fraction(tw, ffa)
 
 ####################### OBJETO FOTO ###########################
