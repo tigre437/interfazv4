@@ -384,7 +384,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if (datos_temp != None):
                     self.rellenar_datos_temp(datos_temp)
             else:
-                self.cargar_lista_experimentos(self.txtArchivos.text() + "/" + combobox.currentText())
+                if(combobox.currentText().startswith("LAB")):
+                    self.cargar_lista_experimentos(self.txtArchivos.text())
+                else:
+                    self.cargar_lista_experimentos(self.txtArchivos.text() + "/" + combobox.currentText())
 
     def cancelar_cambios_filtro(self):
         """Cancela la edición del filtro seleccionado."""
@@ -1259,7 +1262,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def leer_json_experimento(self):
         """Lee un archivo JSON de temperatura y devuelve los datos relevantes."""
-        archivo_json = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/" + "experimento.json"
+        if (self.comboBoxFiltroAn.currentText().startswith("LAB")):
+            archivo_json = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + "experimento.json"
+        else:
+            archivo_json = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/" + "experimento.json"
         try:
             with open(archivo_json, 'r') as f:
                 data = json.load(f)
@@ -1390,8 +1396,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def cargar_imagenes(self):
         # Ruta de la carpeta que contiene las imágenes
-        carpeta_imagenes = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/imagenes"
-        carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text()
+        if (self.comboBoxFiltroAn.currentText().startswith("LAB")):
+            carpeta_imagenes = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/imagenes"
+            carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText()
+        else:
+            carpeta_imagenes = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text() + "/imagenes"
+            carpeta_experimento = self.txtArchivos.text() + "/" + self.comboBoxFiltroAn.currentText() + "/" + self.lblExperimentoSeleccionado.text()
         # Lista para almacenar las imágenes ordenadas como QPixmap
         global lista_imagenes_analisis
         lista_imagenes_analisis = []
