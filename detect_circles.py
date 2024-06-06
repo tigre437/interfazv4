@@ -1,6 +1,6 @@
 ###
 #Nombre del archivo: app.py
-#Autor: Elena Bazo, Editado por David Serrano Henares
+#Autor: Elena Bazo González, Editado por David Serrano Henares
 #Repositorio GitHub: https://github.com/tigre437/interfazv4
 #Funcion: Este archivo contiene la logica de deteccion del analisis final.
 ###
