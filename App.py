@@ -1,3 +1,10 @@
+###
+#Nombre del archivo: app.py
+#Autor: David Serrano Henares
+#Repositorio GitHub: https://github.com/tigre437/interfazv4
+#Funcion: Este archivo contiene la logica de la interfaz.
+###
+
 import os
 import cv2
 import json

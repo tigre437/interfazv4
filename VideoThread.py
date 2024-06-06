@@ -1,3 +1,10 @@
+###
+#Nombre del archivo: app.py
+#Autor: David Serrano Henares
+#Repositorio GitHub: https://github.com/tigre437/interfazv4
+#Funcion: Este archivo contiene el manejo de la cámara e imagenes.
+###
+
 import cv2
 import os
 import datetime
