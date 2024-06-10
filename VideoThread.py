@@ -58,8 +58,13 @@ class VideoThread(QThread):
                 height, width, _ = cv_img.shape
                 if area == 'Placa A':
                     cv_img = cv_img[:, :width // 2]  # Recortar la mitad izquierda de la imagen
+                    # añadir texto rojo abajo a la izquierda con la temperatura de la imagen
+                    cv2.putText(cv_img, str(round(temperatura, 2)), (0, height - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+
                 elif area == 'Placa B':
                     cv_img = cv_img[:, width // 2:]  # Recortar la mitad derecha de la imagen
+                    # añadir texto rojo abajo a la derecha con la temperatura de la imagen
+                    cv2.putText(cv_img, str(round(temperatura, 2)), (width - 10, height - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
             # Guardar la imagen en la carpeta "imagenes"
             try:
                 cv2.imwrite(os.path.join(f"{ruta_experimento}/imagenes", f"{timestamp}.jpg"), cv_img)

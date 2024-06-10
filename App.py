@@ -80,9 +80,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.list_cameras()  # Listar cámaras disponibles
 
         # Conexiones de señales
-        self.comboBoxCamara.currentIndexChanged.connect(self.update_camera_index)  # Actualizar índice de cámara seleccionado
-        self.checkBoxHabilitarA.stateChanged.connect(self.cambiarPlacaA)  # Cambiar placa A
-        self.checkBoxHabilitarB.stateChanged.connect(self.cambiarPlacaB)  # Cambiar placa B
+        self.checkBoxHabilitarA.stateChanged.connect(self.cambiarPlacaA)
+        self.checkBoxHabilitarB.stateChanged.connect(self.cambiarPlacaB)
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.tab_changed)
+        self.checkBoxAmbasPlacas.stateChanged.connect(self.desactivarPlacaB)
+
+        self.comboBoxCamara.currentIndexChanged.connect(self.update_camera_index)
+        self.checkBoxHabilitarA.stateChanged.connect(self.cambiarPlacaA)
+        self.checkBoxHabilitarB.stateChanged.connect(self.cambiarPlacaB)
 
         global check_option_lambda
         check_option_lambda = lambda index: self.comprobar_opcion_seleccionada(index, self.comboBoxFiltro)  # Lambda para comprobar opción seleccionada en comboBoxFiltro
@@ -91,13 +96,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.buttonGuardarFiltro.clicked.connect(self.guardar_datos_filtro)  # Conectar botón "Guardar Filtro" con guardar_datos_filtro
         self.buttonCancelarFiltro.clicked.connect(self.cancelar_cambios_filtro)  # Conectar botón "Cancelar Filtro" con cancelar_cambios_filtro
         self.buttonIniciar.clicked.connect(self.iniciar_experimento)  # Conectar botón "Iniciar" con iniciar_experimento
-
-        self.tabWidget_2.currentChanged.connect(self.tab_changed)  # Conectar cambio de pestaña en tabWidget_2 con tab_changed
-        self.checkBoxHabilitarA.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxHabilitarA con tab_changed
-        self.checkBoxHabilitarB.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxHabilitarB con tab_changed
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.tab_changed)  # Conectar cambio de estado de checkBoxAmbasPlacas con tab_changed
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.desactivar_placaB)  # Conectar cambio de estado de checkBoxAmbasPlacas con desactivar_placaB
-        self.checkBoxAmbasPlacas.stateChanged.connect(self.cambiarPlacaA)  # Conectar cambio de estado de checkBoxAmbasPlacas con cambiarPlacaA
 
         self.buttonGuardarParamDetec.clicked.connect(self.guardar_datos_detection)  # Conectar botón "Guardar Param Detec" con guardar_datos_detection
         self.buttonCancelarParamDetec.clicked.connect(self.cancelar_cambios_detect)  # Conectar botón "Cancelar Param Detec" con cancelar_cambios_detect
@@ -153,9 +151,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.buttonAnalizar.clicked.connect(self.analizar_imagenes)  # Conectar botón "Analizar" con analizar_imagenes
 
-        self.timer_volver = QTimer(self)  # Crear un QTimer para el boton de volver a temperatura inicial
-        self.timer_volver.timeout.connect(self.ir_temp_inic)  # Conectar timeout del timer_volver con ir_temp_inic
-        self.buttonIrTempInic.clicked.connect(lambda: self.timer_volver.start(5000))  # Conectar botón "Ir Temp Inic" con start del timer_volver (5 segundos)
+        self.buttonIrTempInic.clicked.connect(self.ir_temp_inic)  # Conectar botón "Ir Temp Inic" con ir_temp_inic
+
+        self.buttonPararTermo.clicked.connect(self.parar_termostato)  # Conectar botón "Parar Termostato" con parar_termostato
 
         self.timer_rampa = QTimer(self)  # Crear un QTimer para rampa
         self.timer_temp_inicial = QTimer(self)  # Crear un QTimer para temperatura inicial
@@ -234,82 +232,79 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ######################  ANALISIS  ##########################
     
 
-    def desactivar_placaB(self):
+    def desactivarPlacaB(self):
         """Desactiva los campos relacionados con la placa B si el checkbox 'Ambas Placas' está marcado, de lo contrario, los habilita."""
         if self.checkBoxAmbasPlacas.isChecked():
-            self.checkBoxHabilitarB.setChecked(False)  # Desmarca el checkbox de habilitar placa B
-            self.checkBoxHabilitarB.setEnabled(False)  # Deshabilita el checkbox de habilitar placa B
-            self.copiarDatosA()  # Copia los datos de la placa A a la placa B
+            self.checkBoxHabilitarB.setEnabled(False)
+            self.checkBoxHabilitarA.setEnabled(False)
         else:
-            self.checkBoxHabilitarB.setEnabled(True)  # Habilita el checkbox de habilitar placa B
+            self.checkBoxHabilitarB.setEnabled(True)
+            self.checkBoxHabilitarA.setEnabled(True)
 
-    def copiarDatosA(self):
-        """Copia los datos de los campos de la placa A a los campos correspondientes de la placa B."""
-        self.txtNombrePlacaB.setText(self.txtNombrePlacaA.text())  # Copia el nombre de la placa A a la placa B
-        self.txtVDropPlacaB.setText(self.txtVDropPlacaA.text())  # Copia el valor de 'VDrop' de la placa A a la placa B
-        self.txtVWashPlacaB.setText(self.txtVWashPlacaA.text())  # Copia el valor de 'VWash' de la placa A a la placa B
-        self.txtFactorDilucPlacaB.setText(self.txtFactorDilucPlacaA.text())  # Copia el factor de dilución de la placa A a la placa B
-        self.txtFraccFiltroPlacaB.setText(self.txtFraccFiltroPlacaA.text())  # Copia la fracción de filtro de la placa A a la placa B
-        self.txtVelEnfriamientoPlacaB.setText(self.txtVelEnfriamientoPlacaA.text())  # Copia la velocidad de enfriamiento de la placa A a la placa B
-        self.txtObservPlacaB.setPlainText(self.txtObservPlacaA.toPlainText())  # Copia las observaciones de la placa A a la placa B
+    def actualizarEstadoPlacaA(self, habilitar):
+        """Actualiza el estado de los campos de la placa A."""
+        self.txtNombrePlacaA.setEnabled(habilitar)
+        self.txtVDropPlacaA.setEnabled(habilitar)
+        self.txtVWashPlacaA.setEnabled(habilitar)
+        self.txtFactorDilucPlacaA.setEnabled(habilitar)
+        self.txtFraccFiltroPlacaA.setEnabled(habilitar)
+        self.txtVelEnfriamientoPlacaA.setEnabled(habilitar)
+        self.txtObservPlacaA.setEnabled(habilitar)
+
+    def actualizarEstadoPlacaB(self, habilitar):
+        """Actualiza el estado de los campos de la placa B."""
+        self.txtNombrePlacaB.setEnabled(habilitar)
+        self.txtVDropPlacaB.setEnabled(habilitar)
+        self.txtVWashPlacaB.setEnabled(habilitar)
+        self.txtFactorDilucPlacaB.setEnabled(habilitar)
+        self.txtFraccFiltroPlacaB.setEnabled(habilitar)
+        self.txtVelEnfriamientoPlacaB.setEnabled(habilitar)
+        self.txtObservPlacaB.setEnabled(habilitar)
+
 
     def cambiarPlacaA(self):
         """Habilita o deshabilita los campos relacionados con la placa A según el estado del checkbox."""
-        if self.checkBoxHabilitarA.isChecked():
-            self.txtNombrePlacaA.setEnabled(True)  # Habilita el campo de texto del nombre de la placa A
-            self.txtVDropPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa A
-            self.txtVWashPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa A
-            self.txtFactorDilucPlacaA.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa A
-            self.txtFraccFiltroPlacaA.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa A
-            self.txtVelEnfriamientoPlacaA.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa A
-            self.txtObservPlacaA.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa A
-            self.checkBoxAmbasPlacas.setEnabled(False)  # Deshabilita el checkbox de 'Ambas Placas'
-            self.tabWidget_2.widget(2).setEnabled(False)  # Deshabilita la pestaña 2 del tabWidget
+        habilitar_b = self.checkBoxHabilitarB.isChecked()
+        habilitar_a = self.checkBoxHabilitarA.isChecked()
+        self.actualizarEstadoPlacaA(habilitar_a)
 
-        elif self.checkBoxAmbasPlacas.isChecked():
-            self.txtNombrePlacaA.setEnabled(True)  # Habilita el campo de texto del nombre de la placa A
-            self.txtVDropPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa A
-            self.txtVWashPlacaA.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa A
-            self.txtFactorDilucPlacaA.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa A
-            self.txtFraccFiltroPlacaA.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa A
-            self.txtVelEnfriamientoPlacaA.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa A
-            self.txtObservPlacaA.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa A
-            self.checkBoxHabilitarA.setEnabled(False)  # Deshabilita el checkbox de habilitar placa A
-            self.tabWidget_2.widget(2).setEnabled(False)  # Deshabilita la pestaña 2 del tabWidget
+        # Si B está activado y A está activado, habilitar el botón de iniciar
+        if habilitar_b and habilitar_a:
+            self.buttonIniciar.setEnabled(True)
+        # Si B está activado pero A no está activado, deshabilitar el botón de iniciar
+        elif habilitar_b and not habilitar_a:
+            self.buttonIniciar.setEnabled(True)
+        elif habilitar_a:
+            self.buttonIniciar.setEnabled(True)
+        # Si B está desactivado, habilitar el botón de iniciar solo si A está desactivado
         else:
-            self.txtNombrePlacaA.setEnabled(False)  # Deshabilita el campo de texto del nombre de la placa A
-            self.txtVDropPlacaA.setEnabled(False)  # Deshabilita el campo de texto de 'VDrop' de la placa A
-            self.txtVWashPlacaA.setEnabled(False)  # Deshabilita el campo de texto de 'VWash' de la placa A
-            self.txtFactorDilucPlacaA.setEnabled(False)  # Deshabilita el campo de texto del factor de dilución de la placa A
-            self.txtFraccFiltroPlacaA.setEnabled(False)  # Deshabilita el campo de texto de la fracción de filtro de la placa A
-            self.txtVelEnfriamientoPlacaA.setEnabled(False)  # Deshabilita el campo de texto de la velocidad de enfriamiento de la placa A
-            self.txtObservPlacaA.setEnabled(False)  # Deshabilita el campo de texto de las observaciones de la placa A
-            self.checkBoxAmbasPlacas.setEnabled(True)  # Habilita el checkbox de 'Ambas Placas'
-            self.checkBoxHabilitarA.setEnabled(True)  # Habilita el checkbox de habilitar placa A
-            self.tabWidget_2.widget(2).setEnabled(True)  # Habilita la pestaña 2 del tabWidget
+            self.buttonIniciar.setEnabled(False)
+
+        # Habilitar el checkbox de 'Ambas Placas' solo si ambos checkboxes de A y B están desmarcados
+        self.checkBoxAmbasPlacas.setEnabled(not habilitar_a and not habilitar_b)
 
     def cambiarPlacaB(self):
         """Habilita o deshabilita los campos relacionados con la placa B según el estado del checkbox."""
-        if self.checkBoxHabilitarB.isChecked():
-            self.txtNombrePlacaB.setEnabled(True)  # Habilita el campo de texto del nombre de la placa B
-            self.txtVDropPlacaB.setEnabled(True)  # Habilita el campo de texto de 'VDrop' de la placa B
-            self.txtVWashPlacaB.setEnabled(True)  # Habilita el campo de texto de 'VWash' de la placa B
-            self.txtFactorDilucPlacaB.setEnabled(True)  # Habilita el campo de texto del factor de dilución de la placa B
-            self.txtFraccFiltroPlacaB.setEnabled(True)  # Habilita el campo de texto de la fracción de filtro de la placa B
-            self.txtVelEnfriamientoPlacaB.setEnabled(True)  # Habilita el campo de texto de la velocidad de enfriamiento de la placa B
-            self.txtObservPlacaB.setEnabled(True)  # Habilita el campo de texto de las observaciones de la placa B
-            self.checkBoxAmbasPlacas.setEnabled(False)  # Deshabilita el checkbox de 'Ambas Placas'
-            self.tabWidget_2.widget(1).setEnabled(False)  # Deshabilita la pestaña 1 del tabWidget
+        habilitar_b = self.checkBoxHabilitarB.isChecked()
+        habilitar_a = self.checkBoxHabilitarA.isChecked()
+        self.actualizarEstadoPlacaB(habilitar_b)
+        
+
+        # Si B está activado y A está activado, habilitar el botón de iniciar
+        if habilitar_b and habilitar_a:
+            self.buttonIniciar.setEnabled(True)
+        # Si B está activado pero A no está activado, deshabilitar el botón de iniciar
+        elif habilitar_a and not habilitar_b:
+            self.buttonIniciar.setEnabled(True)
+        elif habilitar_b:
+            self.buttonIniciar.setEnabled(True)
+        # Si B está desactivado, habilitar el botón de iniciar solo si A está desactivado
         else:
-            self.txtNombrePlacaB.setEnabled(False)  # Deshabilita el campo de texto del nombre de la placa B
-            self.txtVDropPlacaB.setEnabled(False)  # Deshabilita el campo de texto de 'VDrop' de la placa B
-            self.txtVWashPlacaB.setEnabled(False)  # Deshabilita el campo de texto de 'VWash' de la placa B
-            self.txtFactorDilucPlacaB.setEnabled(False)  # Deshabilita el campo de texto del factor de dilución de la placa B
-            self.txtFraccFiltroPlacaB.setEnabled(False)  # Deshabilita el campo de texto de la fracción de filtro de la placa B
-            self.txtVelEnfriamientoPlacaB.setEnabled(False)  # Deshabilita el campo de texto de la velocidad de enfriamiento de la placa B
-            self.txtObservPlacaB.setEnabled(False)  # Deshabilita el campo de texto de las observaciones de la placa B
-            self.checkBoxAmbasPlacas.setEnabled(True)  # Habilita el checkbox de 'Ambas Placas'
-            self.tabWidget_2.widget(1).setEnabled(True)  # Habilita la pestaña 1 del tabWidget
+            self.buttonIniciar.setEnabled(False)
+
+        # Habilitar el checkbox de 'Ambas Placas' solo si ambos checkboxes de A y B están desmarcados
+        self.checkBoxAmbasPlacas.setEnabled(not habilitar_a and not habilitar_b)
+
 
             
     def buscar_carpetas(self, directorio, codigo):
@@ -488,7 +483,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #    time.sleep(15)
         #return result
         #
-        # Esa es la funcion MODIFICADA que devuelve un valor si se conecta correctamente
+        # Esa es la funcion MODIFICADA del archivo lauda.py que devuelve un valor si se conecta correctamente
 
         url = self.txtIpTermos.text()  # Obtiene la URL del termostato desde el campo de texto en la interfaz
         result = lauda.open(url)  # Intenta abrir una conexión con el termostato utilizando la URL proporcionada
@@ -507,7 +502,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not os.path.exists(archivo_json):
             # Si el archivo no existe, crea uno con valores por defecto
             data = {
-                'label': 'Sin etiqueta',
+                'label_filter': 'Sin etiqueta',
                 'storage_temperature': 0,
                 'sampler_id': 'Sin ID',
                 'filter_position': 0,
@@ -529,7 +524,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         return {
-            'label': data.get('label', 'Sin etiqueta'),
+            'label_filter': data.get('label_filter', 'Sin etiqueta'),
             'storage_temperature': data.get('storage_temperature', 0),
             'sampler_id': data.get('sampler_id', 'Sin ID'),
             'filter_position': data.get('filter_position', 0),
@@ -543,7 +538,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """Asigna los valores correspondientes a cada campo de texto."""
         if self.tabWidget.tabText(self.tabWidget.currentIndex()) == "Experimento":
             # Asigna los valores a los campos de texto en la interfaz gráfica
-            self.txtNombreFiltro.setText(datos['label'])
+            self.txtNombreFiltro.setText(datos['label_filter'])
             self.txtTempStorage.setText(str(datos['storage_temperature']))
             self.txtIdMuestreador.setText(datos['sampler_id'])
             self.txtPosFilter.setText(str(datos['filter_position']))
@@ -563,7 +558,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(ruta_filter_json, 'w') as file:
             # Escribe los datos por defecto en el archivo JSON
             json.dump({
-                "label": "Sin etiqueta",
+                "label_filter": "Sin etiqueta",
                 "storage_temperature": "0",
                 "sampler_id": "Sin ID",
                 "filter_position": "0",
@@ -588,7 +583,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Crear un diccionario con los datos
         datos_filtro = {
-            'label': label,
+            'label_filter': label,
             'storage_temperature': storage_temperature,
             'sampler_id': sampler_id,
             'filter_position': filter_position,
@@ -924,26 +919,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         carpeta_seleccionada = self.txtArchivos.text()
         
         # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
-        if self.comboBoxFiltro.currentText() == "":
-            nombre_filtro = ""
-        else:
-            nombre_filtro = self.comboBoxFiltro.currentText()
+        nombre_filtro = self.comboBoxFiltro.currentText().strip()
         
-        # Obtener el nombre del experimento
-        nombre_experimento = self.obtener_nombre_experimento()
-        
-        # Componer el nombre del experimento con fecha y hora
-        if not self.checkBoxAmbasPlacas.isChecked():
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())}"
+        # Construir la base del nombre del experimento con fecha y hora
+        nombre_base = f"{fecha_actual}_{hora_actual}"
+
+        rutas_json = []
+
+        if self.checkBoxAmbasPlacas.isChecked():
+            # Caso donde ambas placas están activadas
+            nombre_experimento_con_fecha = f"{nombre_base}_{self.txtNombrePlacaA.text().strip()}_AB"
+            if nombre_filtro:
+                ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha, "experimento.json")
+            else:
+                ruta_json = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}", "experimento.json")
+            rutas_json.append(ruta_json)
         else:
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_AB"
+            # Caso donde las placas A y/o B pueden estar activadas independientemente
+            if self.checkBoxHabilitarA.isChecked():
+                nombre_experimento_a = f"{nombre_base}_{self.txtNombrePlacaA.text().strip()}_A"
+                if nombre_filtro:
+                    ruta_json_a = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_a, "experimento.json")
+                else:
+                    ruta_json_a = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_a}", "experimento.json")
+                rutas_json.append(ruta_json_a)
+            
+            if self.checkBoxHabilitarB.isChecked():
+                nombre_experimento_b = f"{nombre_base}_{self.txtNombrePlacaB.text().strip()}_B"
+                if nombre_filtro:
+                    ruta_json_b = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_b, "experimento.json")
+                else:
+                    ruta_json_b = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_b}", "experimento.json")
+                rutas_json.append(ruta_json_b)
         
-        # Construir la ruta completa del archivo JSON del experimento
-        if(nombre_filtro == ""):
-            ruta_json = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}", "experimento.json")
-        else:
-            ruta_json = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha, "experimento.json")
-        return ruta_json
+        return rutas_json
 
     def obtener_ruta_experimento(self):
         """Obtiene la ruta completa del directorio del experimento."""
@@ -955,30 +964,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         carpeta_seleccionada = self.txtArchivos.text()
         
         # Obtener el nombre del filtro seleccionado desde el comboBoxFiltro
-        if self.comboBoxFiltro.currentText() == "":
-            nombre_filtro = ""
-        else:
-            nombre_filtro = self.comboBoxFiltro.currentText()
+        nombre_filtro = self.comboBoxFiltro.currentText().strip()
         
-        # Obtener el nombre del experimento según la placa seleccionada en el tabWidget
-        placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
-        if placa == "Placa A":
-            nombre_experimento = self.txtNombrePlacaA.text()
+        # Construir la base del nombre del experimento con fecha y hora
+        nombre_base = f"{fecha_actual}_{hora_actual}"
+
+        rutas_experimentos = []
+
+        if self.checkBoxAmbasPlacas.isChecked():
+            # Caso donde ambas placas están activadas
+            nombre_experimento_con_fecha = f"{nombre_base}_{self.txtNombrePlacaA.text().strip()}_AB"
+            if nombre_filtro:
+                ruta_experimento = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha)
+            else:
+                ruta_experimento = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}")
+            rutas_experimentos.append(ruta_experimento)
         else:
-            nombre_experimento = self.txtNombrePlacaB.text()
+            # Caso donde las placas A y/o B pueden estar activadas independientemente
+            if self.checkBoxHabilitarA.isChecked():
+                nombre_experimento_a = f"{nombre_base}_{self.txtNombrePlacaA.text().strip()}_A"
+                if nombre_filtro:
+                    ruta_experimento_a = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_a)
+                else:
+                    ruta_experimento_a = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_a}")
+                rutas_experimentos.append(ruta_experimento_a)
+            
+            if self.checkBoxHabilitarB.isChecked():
+                nombre_experimento_b = f"{nombre_base}_{self.txtNombrePlacaB.text().strip()}_B"
+                if nombre_filtro:
+                    ruta_experimento_b = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_b)
+                else:
+                    ruta_experimento_b = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_b}")
+                rutas_experimentos.append(ruta_experimento_b)
         
-        # Componer el nombre del experimento con fecha y hora
-        if not self.checkBoxAmbasPlacas.isChecked():
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{nombre_experimento}_{placa}"
-        else:
-            nombre_experimento_con_fecha = f"{fecha_actual}_{hora_actual}_{self.txtNombrePlacaA.text()}_AB"
-        
-        # Construir la ruta completa del directorio del experimento
-        if(nombre_filtro == ""):
-            ruta_experimento = os.path.join(carpeta_seleccionada, f"LAB_{nombre_experimento_con_fecha}")
-        else:
-            ruta_experimento = os.path.join(carpeta_seleccionada, nombre_filtro, nombre_experimento_con_fecha)
-        return ruta_experimento
+        return rutas_experimentos
 
 
     def iniciar_experimento(self):
@@ -1000,60 +1019,63 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         datos_detection = self.leer_json_detection(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "detection.json"))
         datos_temp = self.leer_json_temp(os.path.join(self.txtArchivos.text(), self.comboBoxFiltro.currentText(), "temp.json"))
 
-        # Obtener los datos del experimento dependiendo de la placa seleccionada
-        placa = self.tabWidget_2.tabText(self.tabWidget_2.currentIndex())
-        if placa == "Placa A":
-            datos_exper = {
-                "v_drop": float(self.txtVDropPlacaA.text()),
-                "v_wash": float(self.txtVWashPlacaA.text()),
-                "dil_factor": float(self.txtFactorDilucPlacaA.text()),
-                "filter_fraction": float(self.txtFraccFiltroPlacaA.text()),
-                "cooling_rate": float(self.txtVelEnfriamientoPlacaA.text()),
-                "observations_exp": self.txtObservPlacaA.toPlainText()
-            }
-        else:
-            datos_exper = {
-                "v_drop": float(self.txtVDropPlacaB.text()),
-                "v_wash": float(self.txtVWashPlacaB.text()),
-                "dil_factor": float(self.txtFactorDilucPlacaB.text()),
-                "filter_fraction": float(self.txtFraccFiltroPlacaB.text()),
-                "cooling_rate": float(self.txtVelEnfriamientoPlacaB.text()),
-                "observations_exp": self.txtObservPlacaB.toPlainText()
-            }
+        datos_exper_a = {
+            "v_drop": float(self.txtVDropPlacaA.text()),
+            "v_wash": float(self.txtVWashPlacaA.text()),
+            "dil_factor": float(self.txtFactorDilucPlacaA.text()),
+            "filter_fraction": float(self.txtFraccFiltroPlacaA.text()),
+            "cooling_rate": float(self.txtVelEnfriamientoPlacaA.text()),
+            "observations_exp": self.txtObservPlacaA.toPlainText()
+        }
+        datos_exper_b = {
+            "v_drop": float(self.txtVDropPlacaB.text()),
+            "v_wash": float(self.txtVWashPlacaB.text()),
+            "dil_factor": float(self.txtFactorDilucPlacaB.text()),
+            "filter_fraction": float(self.txtFraccFiltroPlacaB.text()),
+            "cooling_rate": float(self.txtVelEnfriamientoPlacaB.text()),
+            "observations_exp": self.txtObservPlacaB.toPlainText()
+        }
 
-        # Obtener la ruta de la carpeta del experimento
-        ruta_carpeta_experimento = self.obtener_ruta_experimento()
+        # Obtener las rutas de los archivos JSON del experimento
+        rutas_json = self.obtener_ruta_experimento_json()
 
-        # Verificar y crear la carpeta del experimento si no existe
-        if not os.path.exists(ruta_carpeta_experimento):
-            os.makedirs(ruta_carpeta_experimento)
-        print(ruta_carpeta_experimento)
+        for ruta_json in rutas_json:
+            ruta_carpeta_experimento = os.path.dirname(ruta_json)
+            
+            # Verificar y crear la carpeta del experimento si no existe
+            if not os.path.exists(ruta_carpeta_experimento):
+                os.makedirs(ruta_carpeta_experimento)
 
-        # Establecer la ruta de la carpeta del experimento como la ruta activa
-        global ruta_experimento_activo
-        ruta_experimento_activo = ruta_carpeta_experimento
+            # Verificar y eliminar el archivo JSON si ya existe
+            if os.path.exists(ruta_json):
+                respuesta = self.mostrar_dialogo_confirmacion("Sobreescribir experimento", "¿Estás seguro de que quieres sobreescribir los datos del experimento?")
+                if not respuesta:
+                    return  
+                else:
+                    os.remove(ruta_json)
+            
+            # Combinar todos los datos del experimento en un solo diccionario
+            datos_experimento = {}
+            datos_experimento.update(datos_filtro)
+            datos_experimento.update(datos_detection)
 
-        # Obtener la ruta del archivo JSON del experimento
-        ruta_json = self.obtener_ruta_experimento_json()
-        print(ruta_json)
-
-        # Verificar y eliminar el archivo JSON si ya existe
-        if os.path.exists(ruta_json):
-            respuesta = self.mostrar_dialogo_confirmacion("Sobreescribir experimento", "¿Estás seguro de que quieres sobreescribir los datos del experimento?")
-            if not respuesta:
-                return  
+            if "_A" in ruta_json:
+                datos_experimento.update(datos_exper_a)
+            elif "_B" in ruta_json:
+                datos_experimento.update(datos_exper_b)
             else:
-                os.remove(ruta_json)
-        
-        # Combinar todos los datos del experimento en un solo diccionario
-        datos_experimento = {}
-        datos_experimento.update(datos_filtro)
-        datos_experimento.update(datos_detection)
-        datos_experimento.update(datos_exper)
+                datos_experimento.update(datos_exper_a)  # Asumir datos de la Placa A para el caso de ambas placas
 
-        # Guardar los datos del experimento en el archivo JSON
-        with open(ruta_json, 'w') as file:
-            json.dump(datos_experimento, file)
+            # Guardar los datos del experimento en el archivo JSON
+            with open(ruta_json, 'w') as file:
+                json.dump(datos_experimento, file)
+
+            # Crear el archivo de temperaturas CSV en cada carpeta de experimento
+            with open(f'{ruta_carpeta_experimento}/temperaturas.csv', 'w', newline='') as archivo_csv:
+                escritor_csv = csv.writer(archivo_csv)
+                escritor_csv.writerow(['t_ext', 't_int', 't_set'])
+
+            print(ruta_carpeta_experimento)
 
         # Habilitar el botón de parar experimento
         self.buttonParar.setEnabled(True)
@@ -1063,10 +1085,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.timer_temp_inicial.timeout.connect(lambda: self.llevar_temperatura_inicial())
         self.timer_temp_inicial.start(60000)
-
-        with open(f'{ruta_experimento_activo}/temperaturas.csv', 'w', newline='') as archivo_csv:
-            escritor_csv = csv.writer(archivo_csv)
-            escritor_csv.writerow(['t_ext', 't_int', 't_set'])
 
         self.guardar_temp.timeout.connect(self.guardar_temperaturas)
         self.guardar_temp.start(5000)
@@ -1103,12 +1121,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def ir_temp_inic(self):
         # Función para ir a la temperatura inicial establecida
-        if float(lauda.get_t_set()) != float(self.dSpinBoxTempIni.value()):
-            lauda.set_t_set(self.dSpinBoxTempIni.value())
-            lauda.start()
-        # Comprobar si la temperatura exterior está dentro del rango aceptable
-        if float(lauda.get_t_ext()) > float(self.dSpinBoxTempIni.value()) + 0.2 or float(lauda.get_t_ext()) < float(self.dSpinBoxTempIni.value()) - 0.2:
-            lauda.stop()
+        lauda.set_t_set(self.dSpinBoxTempIni.value())
+        lauda.start()
+        
+    def parar_termostato(self):
+        # Función para parar el termostato
+        lauda.stop()
 
     def llevar_temperatura_inicial(self):
         # Función para esperar a que la temperatura se estabilice cerca de la temperatura inicial
@@ -1139,17 +1157,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         return respuesta == QMessageBox.StandardButton.Yes
 
     def tab_changed(self):
-        # Función para manejar el cambio de pestañas en el tabWidget_2
-        index = self.tabWidget_2.currentIndex()
-        if index is not None:
-            if index == 0:
-                self.buttonIniciar.setEnabled(False)
-            elif index == 1 and (self.checkBoxHabilitarA.isChecked() or self.checkBoxAmbasPlacas.isChecked()):
-                self.buttonIniciar.setEnabled(True)
-            elif index == 2 and self.checkBoxHabilitarB.isChecked():
-                self.buttonIniciar.setEnabled(True)
-            else:
-                self.buttonIniciar.setEnabled(False)
+        """Maneja los cambios de estado en los checkboxes y tabs."""
+        habilitar_ambas = self.checkBoxAmbasPlacas.isChecked()
+        habilitar_a = self.checkBoxHabilitarA.isChecked() or habilitar_ambas
+        habilitar_b = self.checkBoxHabilitarB.isChecked()
+
+        self.actualizarEstadoPlacaA(habilitar_a)
+        self.actualizarEstadoPlacaB(habilitar_b)
+
+        if habilitar_ambas:
+            self.checkBoxHabilitarA.setEnabled(False)
+            self.checkBoxHabilitarB.setEnabled(False)
+            self.buttonIniciar.setEnabled(True)
+        else:
+            self.checkBoxHabilitarA.setEnabled(True)
+            self.checkBoxHabilitarB.setEnabled(True)
+            self.buttonIniciar.setEnabled(False)
 
 
     ####################### CAMARA ##############################

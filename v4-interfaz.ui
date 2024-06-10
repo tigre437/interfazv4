@@ -91,7 +91,7 @@
              </size>
             </property>
             <property name="currentIndex">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="usesScrollButtons">
              <bool>true</bool>
@@ -1655,11 +1655,22 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
-                  <widget class="QPushButton" name="buttonIrTempInic">
-                   <property name="text">
-                    <string>Ir a temperatura Inicial</string>
-                   </property>
-                  </widget>
+                  <layout class="QHBoxLayout" name="horizontalLayout_4">
+                   <item>
+                    <widget class="QPushButton" name="buttonIrTempInic">
+                     <property name="text">
+                      <string>Ir a temperatura Inicial</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="buttonPararTermo">
+                     <property name="text">
+                      <string>Parar Termostato</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                  <item>
                   <widget class="QFrame" name="frame_13">
