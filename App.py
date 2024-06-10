@@ -1141,9 +1141,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         temp_liquid.append(float(lauda.get_t_int()))
         temp_set.append(float(lauda.get_t_set()))
         # Evitar sobreescribir las temperaturas de la imagen
-        with open(f'{ruta_experimento_activo}/temperaturas.csv', 'a', newline='') as archivo_csv:
-            escritor_csv = csv.writer(archivo_csv, delimiter=',')
-            escritor_csv.writerow([float(lauda.get_t_ext()), float(lauda.get_t_int()), float(lauda.get_t_set())])
+        for ruta in ruta_experimento_activo:
+            with open(f'{ruta}/temperaturas.csv', 'a', newline='') as archivo_csv:
+                escritor_csv = csv.writer(archivo_csv, delimiter=',')
+                escritor_csv.writerow([float(lauda.get_t_ext()), float(lauda.get_t_int()), float(lauda.get_t_set())])
 
     def mostrar_dialogo_confirmacion(self, titulo, mensaje):
         # Función para mostrar un diálogo de confirmación
@@ -1213,11 +1214,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         global ruta_experimento_activo
         if ruta_experimento_activo is None:
             ruta_experimento_activo = self.obtener_ruta_experimento()
-        ruta_imagenes = os.path.join(ruta_experimento_activo, "imagenes")
+        
+        for ruta_imagenes in ruta_experimento_activo:
+            ruta_imagenes = os.path.join(ruta_experimento_activo, "imagenes")
 
-        # Crear la carpeta "imagenes" si no existe
-        if not os.path.exists(ruta_imagenes):
-            os.makedirs(ruta_imagenes)
+            # Crear la carpeta "imagenes" si no existe
+            if not os.path.exists(ruta_imagenes):
+                os.makedirs(ruta_imagenes)
 
         self.timer_comprobacion_fotos = QTimer(self)
         self.timer_comprobacion_fotos.timeout.connect(lambda: self.comprobar_fotos(datos_temp))
@@ -1232,12 +1235,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             ruta_experimento_activo = self.obtener_ruta_experimento()
         if float(lauda.get_t_ext()) >= (float(datos_temp['tempImg']) - 0.2) and float(lauda.get_t_ext()) <= (float(datos_temp['tempImg']) + 0.2):
             # Escribir los datos en el archivo CSV
-            with open(f'{ruta_experimento_activo}/imagenes.csv', 'w', newline='') as archivo_csv:
-                escritor_csv = csv.writer(archivo_csv)
-                escritor_csv.writerow(['Imagen', 'Temperatura'])
+            for ruta in ruta_experimento_activo:
+                #Escribir los datos en el archivo CSV
+                with open(f'{ruta}/imagenes.csv', 'w', newline='') as archivo_csv:
+                    escritor_csv = csv.writer(archivo_csv)
+                    escritor_csv.writerow(['Imagen', 'Temperatura'])
 
-            self.timer_tomar_fotos.timeout.connect(lambda: self.tomar_fotos(ruta_experimento_activo))
-            self.timer_tomar_fotos.start(5000)
+                self.timer_tomar_fotos.timeout.connect(lambda ruta: self.tomar_fotos(ruta))
+                self.timer_tomar_fotos.start(5000)
+            
             self.timer_comprobacion_fotos.stop()
 
     def tomar_fotos(self, ruta_imagenes):
