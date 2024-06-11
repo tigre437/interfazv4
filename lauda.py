@@ -79,7 +79,7 @@ class Lauda(QThread):
     def open(self, url):
         try:
             self.conn = serial.serial_for_url(f'socket://{url}', timeout=0.1, write_timeout=0.1)
-            return "connected"
+            return "ok"
         except serial.serialutil.SerialException as e:
             print(e)
             self.conn = None
